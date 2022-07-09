@@ -1,0 +1,525 @@
+{% extends "core/base/base.html" %}
+{% load crispy_forms_filters %}
+{% block content %}
+
+
+{# scripts #}
+
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+
+    <link href="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.css" rel="stylesheet"/>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.js"></script>
+
+    {#  datatable  #}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.23/rg-1.1.2/sp-1.2.2/datatables.min.css"/>
+    <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.23/rg-1.1.2/sp-1.2.2/datatables.min.js"></script>
+    {# end datatable #}
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.js"></script>
+
+{# end scripts #}
+
+<style>
+
+.fade-out {
+	opacity: 0;
+	animation-name: fadeOutOpacity;
+	animation-iteration-count: 1;
+	animation-timing-function: ease-out;
+	animation-duration: 3s;
+ }
+
+@keyframes fadeOutOpacity {
+    100% {
+		opacity: 0;
+	}
+    0% {
+		opacity: 1;
+	}
+ }
+
+
+</style>
+
+
+<div class="container">
+    <div class="card h-100">
+        <div class="card-header text-center d-flex pb-0 justify-content-between">
+            <a id="tablhead" style="flex: 6" >Table of portfolios</a>
+        </div>
+        <div class="card-body pt-3" >
+            {# <table class="table table-striped table-bordered table-sm m-0" id="instrtable">#}
+            <table id="dtBasicExample" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+            {# <table id="dtBasicExample" class="table table-bordered">#}
+                <thead>
+                    <tr>
+                        <th class="th-sm"></th>
+                        <th class="th-sm">Name</th>
+                        <th class="th-sm">Symbols</th>
+                        <th class="th-sm">Note</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for portf_data in table_data  %}
+                    <tr>
+                        <td>
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" value="{{ portf_data.name }}" id="customCheck{{ portf_data.id }}">
+                                <label class="custom-control-label" for="customCheck{{ portf_data.id }}"></label>
+                            </div>
+                        </td>
+                        <td>
+                            <a onclick="portfolio_redirect(this)" href="#">{{ portf_data.name }}</a>
+                        </td>
+                        <td>{{ portf_data.numOwnedStock }}</td>
+                        <td>{{ portf_data.note }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card-footer p-1 d-flex justify-content-between ">
+        <div class="d-flex">
+            <form class="form-inline ml-3 my-auto w-100">
+                <div class="d-flex">
+{#                    <input class="form-control mr-sm-2  my-auto w-100 autocomplete" type="search" placeholder="New portfolio name" id="searchbar" name="searchbar" size="20" maxlength="30">#}
+{#                          <button class="btn btn btn-success my-2 my-sm-0" type="button" id="addbutton">#}
+                    <button class="btn btn btn-success my-2 my-sm-0" type="button" id="addbutton_modal" data-toggle="modal" data-target="#exampleModalCenter">
+                        Create
+                    </button>
+                </div>
+            </form>
+
+            <form class="form-inline ml-1">
+                <button class="btn btn-danger my-2 my-sm-0 d-flex align-items-center" type="button" onclick="onclick_delete_button()" id="deletebutton">Delete</button>
+            </form>
+        </div>
+
+        <div class="justify-content-end mr-3" id="pgn">
+        </div>
+    </div>
+</div>
+
+
+<!-- modal - New portfolio -->
+    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">New portfolio</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <fieldset class="form-group">
+                            {{ portfolio_form|crispy }}
+                        </fieldset>
+                        {# <div class="form-group">#}
+                        {# <button class="btn btn-outline-info" type="submit">Update</button>#}
+                        {# </div>#}
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button class="btn btn-success" type="submit">Create portfolio</button>
+                        </div>
+                    </form>
+                </div>
+                {# <div class="modal-footer">#}
+                {#    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>#}
+                {#    <button class="btn btn-success" type="submit">Create portfolio</button>#}
+                {# </div>#}
+            </div>
+        </div>
+    </div>
+<!-- end modal - New portfolio -->
+
+
+<!-- modal - Force delete -->
+    <div class="modal fade" id="modal_force_delete" tabindex="-1" role="dialog" aria-labelledby="modal_force_delete_label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal_force_delete_label">Force delete?</h5>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label">Details:</label>
+                            <textarea readonly class="form-control" id="message-text"></textarea>
+                        </div>
+                    </form>
+                </div>
+
+                <label for="select_forcedelete">Choose portfolios to delete:</label>
+                <select id="select_forcedelete" multiple="multiple">
+                </select>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="onclick_canceldelete_buttton(this)">Don't make any changes in portfolio/s with share.</button>
+                    <button type="button" class="btn btn-danger" onclick="onclick_forcedelete_buttton(this)">Force delete!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- end modal - Force delete -->
+
+<!-- modal - Delete error -->
+    <div class="modal fade" id="modal_error_delete" tabindex="-1" role="dialog" aria-labelledby="modal_error_delete_label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal_error_delete_label">Error!</h5>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label">Portfolios with share can not be deleted:</label>
+                            <textarea readonly class="form-control" id="message-text"></textarea>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="onclick_cancel_buttton(this)">Close.</button>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- end modal - Delete error -->
+
+
+<script>
+
+    $('.custom-control-input').change(
+        function() {
+        $('#deletebutton').prop('disabled', $('.custom-control-input:checked').length === 0);
+        }
+    );
+
+
+    function portfolio_redirect(ctrl) {
+        window.location.replace(window.location.href + $(ctrl).text());
+    }
+
+    var dtable;
+    $(document).ready(function () {
+        setTimeout(function(){
+           $("#div_messages").addClass('fade-out');
+         }, 5000);
+
+        setTimeout(function(){
+            $("#div_messages").addClass('d-none');
+         }, 8000);
+
+        dtable = $('#dtBasicExample').DataTable({
+                "paging":   true,
+                "ordering": true,
+                "info":     false,
+                "bInfo" :   false,
+                "language": {
+                            lengthMenu: "_MENU_",
+                            search: "_INPUT_",
+                            searchPlaceholder: "Table search"
+                            },
+        initComplete : function() {
+            $("#dtBasicExample_filter").detach().insertBefore('#tablhead');
+            $("#dtBasicExample_length").detach().insertAfter('#tablhead');
+            $("#dtBasicExample_paginate").detach().appendTo('#pgn');
+        }
+
+        });
+
+        document.getElementById("dtBasicExample_filter").style.flex = "1"
+        document.getElementById("dtBasicExample_length").style.flex = "1"
+
+
+        $('#deletebutton').prop('disabled', true);
+    });
+
+
+
+    function onclick_delete_button() {
+    {#$( "#deletebutton" ).prepend( `<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>` );#}
+
+    var values = [];
+    $("input[type=checkbox]:checked").each(function() {
+        values.push($(this).val());
+    });
+
+
+        $.ajax({
+            type: "POST",
+            url: "/portfolio/",
+            data: {
+                delete_portfolio : values.join(),
+                "csrfmiddlewaretoken": "{{ csrf_token }}"
+            },
+            success: function(data) {
+
+
+                outputtext = ''
+                possible_delete = []
+                company_no_share_counter = 0
+                company_with_share_counter = 0
+
+                for (const company in data['delete_data']){
+
+                    if (data['delete_data'][company]['company_no_share'].length > 0){
+                        company_no_share_counter = company_no_share_counter + 1
+                    }
+
+                    if (data['delete_data'][company]['company_with_share'].length > 0){
+                        company_with_share_counter = company_with_share_counter + 1
+                    }
+
+
+
+                    if (data['delete_data'][company]['company_with_share'].length === 0){
+                        if (data['delete_data'][company]['company_no_share'].length > 0){
+                                possible_delete.push([company][0])
+                        }
+                    }
+
+                    outputtext = outputtext + 'Portfolio name: ' + [company][0]
+                    outputtext = outputtext + '\n'
+                    outputtext = outputtext + 'Stock with no share: ' + data['delete_data'][company]['company_no_share']
+                    outputtext = outputtext + '\n'
+                    outputtext = outputtext + 'Stock with share: ' + data['delete_data'][company]['company_with_share']
+                    outputtext = outputtext + '\n--------------------------------\n'
+                }
+
+
+                {# Error modal #}
+                if ( company_no_share_counter === 0 && company_with_share_counter > 0 ){
+                    {# just with share #}
+                    {# error modal #}
+
+                    var modal = $('#modal_error_delete')
+                    modal.find('.modal-body textarea').val(outputtext)
+
+                    $("#modal_error_delete").modal("show");
+                    return
+
+                {# Force modal #}
+                } else if (company_no_share_counter > 0 && company_with_share_counter === 0) {
+                    {#  just no share  #}
+
+                    var modal = $('#modal_force_delete')
+                    modal.find('.modal-body textarea').val(outputtext)
+
+                    $( "#select_forcedelete" ).empty();
+
+                    for (const i in possible_delete){
+                        $( "#select_forcedelete" ).append('<option value="'+ possible_delete +'">'+ possible_delete +'</option>');
+                     }
+
+                    $("#modal_force_delete").modal("show");
+                    return
+
+
+                {# Error & Force modal #}
+                } else if ( company_no_share_counter > 0 && company_with_share_counter > 0 ){
+                    {# both #}
+
+                    var modal = $('#modal_force_delete')
+                    modal.find('.modal-body textarea').val(outputtext)
+
+                    $( "#select_forcedelete" ).empty();
+
+                    for (const i in possible_delete){
+                        $( "#select_forcedelete" ).append('<option value="'+ possible_delete +'">'+ possible_delete +'</option>');
+                     }
+
+                    $("#modal_force_delete").modal("show");
+                    return
+                }
+
+
+                {# if no conflict( portfolio do not have added stocks ) while portfolio deleting #}
+                const keys = Object.keys(data.table_data);
+
+                if (keys.length === 0){
+                    dtable.clear();
+                    dtable.draw();
+                } else {
+                    dtable.clear();
+                    for (const key in keys) {
+                        dtable.row.add([
+                            '<div class="custom-control custom-checkbox">' +
+                            '<input type="checkbox" class="custom-control-input" value="' + data.table_data[key][1] + '" id="customCheck' + data.table_data[key][0] + '">' +
+                            '<label class="custom-control-label" for="customCheck' + data.table_data[key][0] + '"></label>' +
+                            '</div>',
+                            '<a onclick="portfolio_redirect(this)" href="#">' + data.table_data[key][1] + '</a>',
+                            data.table_data[key][2],
+                            data.table_data[key][3],
+                        ]).draw();
+                    }
+                }
+                {# Spinner end #}
+                $( ".spinner-border" ).remove();
+
+            },
+            error: function (data){
+
+            }
+        })
+    }
+
+
+
+
+    function onclick_forcedelete_buttton(){
+        var modal = $('#modal_force_delete')
+
+        {# get selected portfolios from modal_force_delete #}
+        var selected = [];
+        for (var option of document.getElementById('select_forcedelete').options) {
+            if (option.selected) {
+              selected.push(option.value);
+            }
+        }
+
+        modal.modal("hide");
+
+        $.ajax({
+            type: "POST",
+            url: "/portfolio/",
+            data: {
+                "csrfmiddlewaretoken": "{{ csrf_token }}",
+                forcedelete: selected.join(),
+            },
+            success: function(data) {
+
+                const keys = Object.keys(data.table_data);
+                if (keys.length === 0){
+                    dtable.clear();
+                    dtable.draw();
+                } else {
+                    dtable.clear();
+                    for (const key in keys) {
+                        dtable.row.add([
+                            '<div class="custom-control custom-checkbox">' +
+                            '<input type="checkbox" class="custom-control-input" value="' + data.table_data[key][1] + '" id="customCheck' + data.table_data[key][0] + '">' +
+                            '<label class="custom-control-label" for="customCheck' + data.table_data[key][0] + '"></label>' +
+                            '</div>',
+                            '<a onclick="portfolio_redirect(this)" href="#">' + data.table_data[key][1] + '</a>',
+                            data.table_data[key][2],
+                            data.table_data[key][3],
+                        ]).draw();
+                    }
+                }
+                $( ".spinner-border" ).remove();
+            },
+            error: function (data){
+
+            }
+        })
+    }
+
+
+    function onclick_canceldelete_buttton(){
+        var modal = $('#modal_force_delete')
+        modal.modal("hide");
+
+
+        $.ajax({
+            type: "POST",
+            url: "/portfolio/",
+            data: {
+                "csrfmiddlewaretoken": "{{ csrf_token }}",
+                canceldelete: ""
+            },
+            success: function(data) {
+
+
+                {# redraw table #}
+                const keys = Object.keys(data.table_data);
+
+                if (keys.length === 0){
+                    dtable.clear();
+                    dtable.draw();
+                } else {
+                    dtable.clear();
+                    for (const key in keys) {
+                        dtable.row.add([
+                            '<div class="custom-control custom-checkbox">' +
+                            '<input type="checkbox" class="custom-control-input" value="' + data.table_data[key][1] + '" id="customCheck' + data.table_data[key][0] + '">' +
+                            '<label class="custom-control-label" for="customCheck' + data.table_data[key][0] + '"></label>' +
+                            '</div>',
+                            '<a onclick="portfolio_redirect(this)" href="#">' + data.table_data[key][1] + '</a>',
+                            data.table_data[key][2],
+                            data.table_data[key][3]
+
+                        ]).draw();
+                    }
+                }
+
+                $( ".spinner-border" ).remove();
+
+            },
+            error: function (data){
+
+            }
+        })
+    }
+
+    function onclick_cancel_buttton(){
+        var modal = $('#modal_error_delete')
+        modal.modal("hide");
+
+
+        $.ajax({
+            type: "POST",
+            url: "/portfolio/",
+            data: {
+                "csrfmiddlewaretoken": "{{ csrf_token }}",
+                canceldelete: ""
+            },
+            success: function(data) {
+
+                {# redraw table #}
+                const keys = Object.keys(data.table_data);
+
+                if (keys.length === 0){
+                    dtable.clear();
+                    dtable.draw();
+                } else {
+                    dtable.clear();
+                    for (const key in keys) {
+
+                        dtable.row.add([
+                            '<div class="custom-control custom-checkbox">' +
+                            '<input type="checkbox" class="custom-control-input" value="' + data.table_data[key][1] + '" id="customCheck' + data.table_data[key][0] + '">' +
+                            '<label class="custom-control-label" for="customCheck' + data.table_data[key][0] + '"></label>' +
+                            '</div>',
+                            '<a onclick="portfolio_redirect(this)" href="#">' + data.table_data[key][1] + '</a>',
+                            data.table_data[key][2],
+                            data.table_data[key][3]
+
+                        ]).draw();
+                    }
+                }
+
+                $( ".spinner-border" ).remove();
+
+            },
+            error: function (data){
+
+            }
+        })
+    }
+
+
+</script>
+
+{% endblock content %}
+

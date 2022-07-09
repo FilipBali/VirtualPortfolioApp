@@ -1,0 +1,46 @@
+{% extends 'admin/base_site.html' %}
+
+{% load static %}
+{% block branding %}
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    {% if user.is_authenticated %}
+    <div class="head">
+        <h1>Django administration</h1>
+        <button class="btn btn-danger my-2 my-sm-0 d-flex align-items-center" type="button" onclick="onclick_run_event_notification_button()" id="eventnotificationbutton">Run event notification</button>
+    </div>
+    {% endif %}
+
+
+<script>
+
+function onclick_run_event_notification_button() {
+    var btn = document.getElementById("eventnotificationbutton");
+
+
+
+        $.ajax({
+            type: "POST",
+            url: "/notifications/",
+            data: {
+                "csrfmiddlewaretoken": "{{ csrf_token }}",
+                'event_notifications_process': ''
+            },
+            success: function(data) {
+
+
+                if (data.already_running === true) {
+
+                    btn.innerHTML= 'Already running'
+                } else {
+                    btn.innerHTML= 'Process started'
+                }
+            },
+            error: function (data){
+
+            }
+         })
+}
+</script>
+{% endblock %}
+

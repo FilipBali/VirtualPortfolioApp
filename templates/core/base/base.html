@@ -1,0 +1,542 @@
+{% load static %}
+{#{% load django_bootstrap_icons %}#}
+{#{% include_bootstrap_icons %}#}
+
+<!DOCTYPE html>
+<html lang="en">
+<link>
+<head>
+
+    {# Required meta tags #}
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    {# Bootstrap CSS #}
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+          integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
+          crossorigin="anonymous">
+
+
+    {#  CUSTOM CSS  #}
+    <link rel="stylesheet"
+{#          type="text/css"#}
+          href="{% static 'authenticationApp/css/main.css' %}"/>
+
+    {# JQUERY #}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    {# TODO napisat Title #}
+    <title>{{ title }}</title>
+
+<style>
+html {
+    overflow-y: overlay;
+}
+</style>
+
+
+</head>
+<body>
+
+    <header class="site-header">
+      <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
+        <div class="container">
+
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle"
+                    aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarToggle">
+                {# Navbar left side #}
+                <div class="navbar-nav mr-auto">
+                {% if user.is_authenticated %}
+                    <a class="nav-item nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">Home</a>
+                    <a class="nav-item nav-link {% if request.resolver_match.url_name == 'historical_data' %}active{% endif %}"  href="{% url 'historical_data' %}">Historical data</a>
+                    <a class="nav-item nav-link {% if request.resolver_match.url_name == 'portfolio_list' %}active{% endif %}" href="{% url 'portfolio_list' %}">Portfolio</a>
+                {% endif %}
+
+
+{#                    <a class="nav-item nav-link {% if request.resolver_match.url_name == 'portfolio' %}active{% endif %}" href="{% url 'portfolio'  %}">Portfolio</a>#}
+{##}
+                    {%  if request.resolver_match.url_name == 'portfolio' %}
+                        <a class="nav-item nav-link active" href="{% url 'portfolio' portfolio=portfolio_data.name %}">
+                            →{{portfolio_data.name}}
+                        </a>
+                    {% endif %}
+
+
+                    {%  if request.resolver_match.url_name == 'portfolio_analysis' %}
+                        <a class="nav-item nav-link" href="{% url 'portfolio' portfolio=portfolio_data.name %}">
+                            →{{portfolio_data.name}}
+                        </a>
+
+                        <a class="nav-item nav-link active" href="{% url 'portfolio_analysis' portfolio=portfolio_data.name %}">
+                            →{{portfolio_data.name}} (Analysis)
+                        </a>
+                    {% endif %}
+
+
+                    {%  if request.resolver_match.url_name == 'instrument' %}
+                        <a class="nav-item nav-link" href="{% url 'portfolio' portfolio=portfolio_data.name %}">→{{portfolio_data.name}}
+                        </a>
+
+                        <a class="nav-item nav-link active" href="{% url 'instrument' portfolio=portfolio_data.name stock=stock_data.symbol %}">
+                            →{{stock_data.symbol}}
+                        </a>
+                    {% endif %}
+
+
+                    {%  if request.resolver_match.url_name == 'instrument_preview' %}
+                        <a class="nav-item nav-link" href="{% url 'portfolio' portfolio=portfolio_data.name %}">→{{portfolio_data.name}}
+                        </a>
+
+                        <a class="nav-item nav-link active" href="{% url 'instrument_preview' portfolio=portfolio_data.name stock=request.resolver_match.kwargs.stock %}">
+                            →{{request.resolver_match.kwargs.stock}} (Preview)
+                        </a>
+                    {% endif %}
+
+                    {%  if request.resolver_match.url_name == 'instrument_analysis' %}
+                        <a class="nav-item nav-link" href="{% url 'portfolio' portfolio=portfolio_data.name %}">→{{portfolio_data.name}}
+                        </a>
+
+                        <a class="nav-item nav-link" href="{% url 'instrument' portfolio=portfolio_data.name stock=stock_data.symbol %}">
+                        →{{request.resolver_match.kwargs.stock}}
+                        </a>
+
+                        <a class="nav-item nav-link active" href="{% url 'instrument_analysis' portfolio=portfolio_data.name stock=request.resolver_match.kwargs.stock %}">
+                            →Analysis
+                        </a>
+                    {% endif %}
+
+{#                    <a class="nav-item nav-link {% if request.resolver_match.url_name == 'instrument' %}active{% endif %}" href="{% url 'instrument' id=instrument.id %}">Instrument</a>#}
+                    {#                    <a class="nav-item nav-link {% if request.resolver_match.url_name == 'instrument' %}active{% endif %}" href="{% url 'instrument' id=instrument.id %}">Instrument</a>#}
+
+
+                </div>
+
+                {# Navbar right side #}
+                <div class="navbar-nav">
+                  {% if user.is_authenticated %}
+                    <a class="nav-item nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" href="{% url 'profile' %}"> {{ request.user.username }}'s profile</a>
+                    <a class="nav-item nav-link {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}" href="{% url 'notifications' %}">Notifications</a>
+                    <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>
+
+                  {% else %}
+                    <a class="nav-item nav-link" href="{% url 'login' %}">Login</a>
+                    <a class="nav-item nav-link" href="{% url 'register' %}">Register</a>
+                  {% endif %}
+
+                </div>
+            </div>
+        </div>
+      </nav>
+    </header>
+
+
+      {% if request.resolver_match.url_name in 'home' %}
+
+        <div class="container-fluid mb-3">
+        <!--Carousel Wrapper-->
+        <div id="multi-item-portoflios" class="carousel slide carousel-multi-item" data-ride="carousel">
+
+            <!--Controls-->
+            <div class="controls-top">
+              <a class="btn-floating" href="#multi-item-portoflios" data-slide="prev"><i class="fa fa-chevron-left"></i></a>
+              <a class="btn-floating" href="#multi-item-portoflios" data-slide="next"><i class="fa fa-chevron-right"></i></a>
+            </div>
+            <!--/.Controls-->
+
+                    <!--Slides-->
+            <div class="carousel-inner pb-3 pl-3 pr-3" role="listbox">
+
+            {% for items in active_panel_data %}
+
+                {#  #first iteration #}
+                {% if forloop.counter == 1 %}
+                    <div class="carousel-item active" >
+                {% else %}
+                    <div class="carousel-item">
+                {% endif %}
+
+                    <div class="row" >
+
+                        {% for item in items %}
+
+                              <div class="col-md-2" >
+                                <div class="card pb-1 mb-2 h-100" style="box-shadow: 5px 5px 2px grey">
+                                  <div class="card-body d-flex pt-0 pb-0 pl-0 pr-0">
+                                    <div class="card-body pt-0 pb-0 pl-1 pr-0">
+                                        <p class="card-text  pt-0 pb-0 pl-0 pr-0 mb-0"><b>{{ item.0 }}</b></p>
+                                        <p class="card-text  pt-0 pb-0 pl-0 pr-0 mb-0">% change: {{ item.1 }}%</p>
+                                        {# TODO dolare? ina mena? #}
+                                        <p class="card-text  pt-0 pb-0 pl-0 pr-0 mb-0">Closed price: {{ item.2 }}$</p>
+                                    </div>
+                                    <div class="card-body pt-0 pb-0 pl-0 pr-0 d-flex align-items-center justify-content-center">
+
+                                        {% if item.3 == 0 %}
+
+                                            <p class="card-text pt-0 pb-0 pl-0 pr-0 mb-0">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="black" class="bi bi-dash" viewBox="0 0 16 16">
+                                                    <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/>
+                                                </svg>
+                                            </p>
+
+                                        {% elif item.3 == 1 %}
+
+                                            <p class="card-text pt-0 pb-0 pl-0 pr-0">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="green" class="bi bi-arrow-up-right" viewBox="0 0 16 16">
+                                                    <path fill-rule="evenodd" d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0v-6z"/>
+                                                </svg>
+                                            </p>
+
+
+                                        {% elif item.3 == -1 %}
+
+                                            <p class="card-text pt-0 pb-0 pl-0 pr-0">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="red" class="bi bi-arrow-down-right" viewBox="0 0 16 16">
+                                                    <path fill-rule="evenodd" d="M14 13.5a.5.5 0 0 1-.5.5h-6a.5.5 0 0 1 0-1h4.793L2.146 2.854a.5.5 0 1 1 .708-.708L13 12.293V7.5a.5.5 0 0 1 1 0v6z"/>
+                                                </svg>
+                                            </p>
+
+                                        {% endif %}
+
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                        {% endfor %}
+
+                    </div>
+                </div>
+
+            {% endfor %}
+{#            <!--Slides-->#}
+{#            <div class="carousel-inner" role="listbox">#}
+
+
+
+
+{#                <!--First slide-->#}
+{#                <div class="carousel-item" id="first-carousel-item">#}
+{##}
+{#                    <div class="row" >#}
+{#                      <div class="col-md-2" >#}
+{#                        <div class="card mb-2 h-100">#}
+{#                          <div class="card-body d-flex pt-0 pb-0 pl-0 pr-0">#}
+{#                            <div class="card-body pt-0 pb-0 pl-0 pr-0">#}
+{#                                <p class="card-text">aa</p>#}
+{#                                <p class="card-text">bb</p>#}
+{#                            </div>#}
+{#                            <div class="card-body pt-0 pb-0 pl-0 pr-0 d-flex align-items-center justify-content-center">#}
+{#                                <p class="card-text">cc</p>#}
+{#                            </div>#}
+{#                          </div>#}
+{#                        </div>#}
+{#                      </div>#}
+{##}
+{#                      <div class="col-md-2 clearfix d-none d-md-block">#}
+{#                        <div class="card mb-2 h-100">#}
+{#                          <div class="card-body d-flex pt-0 pb-0 pl-0 pr-0">#}
+{#                            <div class="card-body pt-0 pb-0 pl-0 pr-0">#}
+{#                                <p class="card-text">aa</p>#}
+{#                                <p class="card-text">bb</p>#}
+{#                            </div>#}
+{#                            <div class="card-body pt-0 pb-0 pl-0 pr-0 d-flex align-items-center justify-content-center">#}
+{#                                <p class="card-text">cc</p>#}
+{#                            </div>#}
+{#                          </div>#}
+{#                        </div>#}
+{#                      </div>#}
+{##}
+{#                      <div class="col-md-2 clearfix d-none d-md-block">#}
+{#                        <div class="card mb-2 h-100">#}
+{#                          <div class="card-body d-flex pt-0 pb-0 pl-0 pr-0">#}
+{#                            <div class="card-body pt-0 pb-0 pl-0 pr-0">#}
+{#                                <p class="card-text">aa</p>#}
+{#                                <p class="card-text">bb</p>#}
+{#                            </div>#}
+{#                            <div class="card-body pt-0 pb-0 pl-0 pr-0 d-flex align-items-center justify-content-center">#}
+{#                                <p class="card-text">cc</p>#}
+{#                            </div>#}
+{#                          </div>#}
+{#                        </div>#}
+{#                      </div>#}
+{##}
+{#                      <div class="col-md-2 clearfix d-none d-md-block">#}
+{#                        <div class="card mb-2 h-100">#}
+{#                          <div class="card-body d-flex pt-0 pb-0 pl-0 pr-0">#}
+{#                            <div class="card-body pt-0 pb-0 pl-0 pr-0">#}
+{#                                <p class="card-text">aa</p>#}
+{#                                <p class="card-text">bb</p>#}
+{#                            </div>#}
+{#                            <div class="card-body pt-0 pb-0 pl-0 pr-0 d-flex align-items-center justify-content-center">#}
+{#                                <p class="card-text">cc</p>#}
+{#                            </div>#}
+{#                          </div>#}
+{#                        </div>#}
+{#                      </div>#}
+{##}
+{#                      <div class="col-md-2 clearfix d-none d-md-block">#}
+{#                        <div class="card mb-2 h-100">#}
+{#                          <div class="card-body d-flex pt-0 pb-0 pl-0 pr-0">#}
+{#                            <div class="card-body pt-0 pb-0 pl-0 pr-0">#}
+{#                                <p class="card-text">aa</p>#}
+{#                                <p class="card-text">bb</p>#}
+{#                            </div>#}
+{#                            <div class="card-body pt-0 pb-0 pl-0 pr-0 d-flex align-items-center justify-content-center">#}
+{#                                <p class="card-text">cc</p>#}
+{#                            </div>#}
+{#                          </div>#}
+{#                        </div>#}
+{#                      </div>#}
+{##}
+{#                      <div class="col-md-2 clearfix d-none d-md-block">#}
+{#                        <div class="card mb-2 h-100">#}
+{#                          <div class="card-body d-flex pt-0 pb-0 pl-0 pr-0">#}
+{#                            <div class="card-body pt-0 pb-0 pl-0 pr-0">#}
+{#                                <p class="card-text">aa</p>#}
+{#                                <p class="card-text">bb</p>#}
+{#                            </div>#}
+{#                            <div class="card-body pt-0 pb-0 pl-0 pr-0 d-flex align-items-center justify-content-center">#}
+{#                                <p class="card-text">cc</p>#}
+{#                            </div>#}
+{#                          </div>#}
+{#                        </div>#}
+{#                      </div>#}
+{##}
+{##}
+{##}
+{#                    </div>#}
+{##}
+{#                </div>#}
+{#                <!--/.First slide-->#}
+{##}
+{#              <div class="carousel-item">#}
+{##}
+{##}
+{#              </div>#}
+{##}
+{#              <!--Second slide-->#}
+{#              <div class="carousel-item">#}
+{##}
+{#                <div class="row">#}
+{#                  <div class="col-md-2">#}
+{#                    <div class="card mb-2 h-100">#}
+{#                      <div class="card-body d-flex pt-0 pb-0 pl-0 pr-0">#}
+{#                        <div class="card-body pt-0 pb-0 pl-0 pr-0">#}
+{#                            <p class="card-text">aa</p>#}
+{#                            <p class="card-text">bb</p>#}
+{#                        </div>#}
+{#                        <div class="card-body pt-0 pb-0 pl-0 pr-0 d-flex align-items-center justify-content-center">#}
+{#                            <p class="card-text">cc</p>#}
+{#                        </div>#}
+{#                      </div>#}
+{#                    </div>#}
+{#                  </div>#}
+{##}
+{#                  <div class="col-md-2 clearfix d-none d-md-block">#}
+{#                    <div class="card mb-2 h-100">#}
+{#                      <div class="card-body d-flex pt-0 pb-0 pl-0 pr-0">#}
+{#                        <div class="card-body pt-0 pb-0 pl-0 pr-0">#}
+{#                            <p class="card-text">aa</p>#}
+{#                            <p class="card-text">bb</p>#}
+{#                        </div>#}
+{#                        <div class="card-body pt-0 pb-0 pl-0 pr-0 d-flex align-items-center justify-content-center">#}
+{#                            <p class="card-text">cc</p>#}
+{#                        </div>#}
+{#                      </div>#}
+{#                    </div>#}
+{#                  </div>#}
+{##}
+{#                  <div class="col-md-2 clearfix d-none d-md-block">#}
+{#                    <div class="card mb-2 h-100">#}
+{#                      <div class="card-body d-flex pt-0 pb-0 pl-0 pr-0">#}
+{#                        <div class="card-body pt-0 pb-0 pl-0 pr-0">#}
+{#                            <p class="card-text">aa</p>#}
+{#                            <p class="card-text">bb</p>#}
+{#                        </div>#}
+{#                        <div class="card-body pt-0 pb-0 pl-0 pr-0 d-flex align-items-center justify-content-center">#}
+{#                            <p class="card-text">cc</p>#}
+{#                        </div>#}
+{#                      </div>#}
+{#                    </div>#}
+{#                  </div>#}
+{##}
+{#                  <div class="col-md-2 clearfix d-none d-md-block">#}
+{#                    <div class="card mb-2 h-100">#}
+{#                      <div class="card-body d-flex pt-0 pb-0 pl-0 pr-0">#}
+{#                        <div class="card-body pt-0 pb-0 pl-0 pr-0">#}
+{#                            <p class="card-text">aa</p>#}
+{#                            <p class="card-text">bb</p>#}
+{#                        </div>#}
+{#                        <div class="card-body pt-0 pb-0 pl-0 pr-0 d-flex align-items-center justify-content-center">#}
+{#                            <p class="card-text">cc</p>#}
+{#                        </div>#}
+{#                      </div>#}
+{#                    </div>#}
+{#                  </div>#}
+{##}
+{#                  <div class="col-md-2 clearfix d-none d-md-block">#}
+{#                    <div class="card mb-2 h-100">#}
+{#                      <div class="card-body d-flex pt-0 pb-0 pl-0 pr-0">#}
+{#                        <div class="card-body pt-0 pb-0 pl-0 pr-0">#}
+{#                            <p class="card-text">aa</p>#}
+{#                            <p class="card-text">bb</p>#}
+{#                        </div>#}
+{#                        <div class="card-body pt-0 pb-0 pl-0 pr-0 d-flex align-items-center justify-content-center">#}
+{#                            <p class="card-text">cc</p>#}
+{#                        </div>#}
+{#                      </div>#}
+{#                    </div>#}
+{#                  </div>#}
+{##}
+{#                  <div class="col-md-2 clearfix d-none d-md-block">#}
+{#                    <div class="card mb-2 h-100">#}
+{#                      <div class="card-body d-flex pt-0 pb-0 pl-0 pr-0">#}
+{#                        <div class="card-body pt-0 pb-0 pl-0 pr-0">#}
+{#                            <p class="card-text">aa</p>#}
+{#                            <p class="card-text">bb</p>#}
+{#                        </div>#}
+{#                        <div class="card-body pt-0 pb-0 pl-0 pr-0 d-flex align-items-center justify-content-center">#}
+{#                            <p class="card-text">cc</p>#}
+{#                        </div>#}
+{#                      </div>#}
+{#                    </div>#}
+{#                  </div>#}
+{##}
+{##}
+{#                </div>#}
+{##}
+{#              </div>#}
+              <!--/.Second slide-->
+
+            </div>
+            <!--/.Slides-->
+
+          </div>
+          <!--/.Carousel Wrapper-->
+
+
+
+          </div>
+          {% endif %}
+
+
+    {% if request.resolver_match.url_name in 'profile, portfolio_list, portfolio, login, logout' %}
+        <main role="main" class="container">
+    {% else %}
+        <main role="main" class="container-fluid">
+    {% endif %}
+
+
+{#          <div class="row">#}
+          <div class="d-flex">
+
+
+        {% if request.resolver_match.url_name in 'profile, login, logout' %}
+            <div class="col-md-8">
+        {% elif request.resolver_match.url_name == 'home' %}
+            <div class="col-md-9">
+        {% else %}
+            <div class="col-md-12">
+        {% endif %}
+          <div id="div_messages">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+          </div>
+             {% block content %}{% endblock %}
+{#          </div>#}
+        </div>
+
+        {% if request.resolver_match.url_name == 'profile' %}
+            <div class="col-md-4">
+              <div class="content-section">
+                <h3>Settings</h3>
+                <p class='text-muted'>
+{#                  <a class="list-group">#}
+                  <!-- List group -->
+                  <div class="list-group" id="myList" role="tablist">
+                    <a class="list-group-item list-group-item-action {% if active_tab == 'profile_settings' %} active{% endif %}" data-toggle="list" href="#home" role="tab">Personal</a>
+                    <a class="list-group-item list-group-item-action {% if active_tab == 'application_settings' %} active{% endif %}" data-toggle="list" href="#profile" role="tab">Application</a>
+                  </div>
+                </p>
+              </div>
+            </div>
+        {% elif request.resolver_match.url_name == 'login' %}
+            {% load socialaccount %}
+            <div class="col-md-4">
+              <div class="content-section d-collumn">
+                <h3 class="mb-3 d-flex justify-content-center">Or sign with</h3>
+{#                <button class="btn btn-primary" href="{% provider_login_url 'google' %}">Login With Google</button>#}
+                <a class="btn btn-danger mt-3 d-flex justify-content-center" href="{% provider_login_url 'google' %}">Login With Google</a>
+                <a class="btn btn-dark mt-3 d-flex justify-content-center" href="{% provider_login_url 'github' %}">Login With Github</a>
+{#                <a class="btn btn-primary mt-3 d-flex justify-content-center" href="{% provider_login_url 'microsoft' %}">Login With Microsoft</a>#}
+              </div>
+            </div>
+
+        {% elif request.resolver_match.url_name == 'home' %}
+            <div class="col-md-3">
+{#              <div class="content-section d-collumn">#}
+                  <div class="card h-50 mb-3">
+                      <div class="card-body">
+                          <div class="media d-flex">
+                              <div class="align-self-center">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-cart-check" viewBox="0 0 16 16">
+                                        <path d="M11.354 6.354a.5.5 0 0 0-.708-.708L8 8.293 6.854 7.146a.5.5 0 1 0-.708.708l1.5 1.5a.5.5 0 0 0 .708 0l3-3z"/>
+                                        <path d="M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1H.5zm3.915 10L3.102 4h10.796l-1.313 7h-8.17zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                                  </svg>
+
+                              </div>
+                              <div class="media-body text-right">
+                                  <h3>{{ data.portfolios_stock_count }}</h3>
+                                  <span>Owned shares</span>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+
+
+                  <div class="card h-50 mb-3">
+                      <div class="card-body">
+                          <div class="media d-flex">
+                              <div class="align-self-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="green" class="bi bi-cash-stack" viewBox="0 0 16 16">
+                                          <path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1H1zm7 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/>
+                                          <path d="M0 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V5zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V7a2 2 0 0 1-2-2H3z"/>
+                                    </svg>
+                              </div>
+                              <div class="media-body text-right">
+                                  <h3>{{ data.total_value }} $</h3>
+                                  <span>Total value</span>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+            </div>
+        {% endif %}
+
+        </div>
+    </main>
+
+
+
+
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+
+</body>
+</html>

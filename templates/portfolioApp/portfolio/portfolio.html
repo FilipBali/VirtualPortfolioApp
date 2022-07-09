@@ -1,0 +1,375 @@
+{% extends "core/base/base.html" %}
+{% load crispy_forms_filters %}
+{% block content %}
+
+
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<link href="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.css" rel="stylesheet"/>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.js"></script>
+
+
+{#  DATATABLES  #}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.23/rg-1.1.2/sp-1.2.2/datatables.min.css"/>
+<script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.23/rg-1.1.2/sp-1.2.2/datatables.min.js"></script>
+{# ----------- #}
+<script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.js"></script>
+
+<style>
+    .fade-out {
+	opacity: 0;
+	animation-name: fadeOutOpacity;
+	animation-iteration-count: 1;
+	animation-timing-function: ease-out;
+	animation-duration: 3s;
+    }
+
+    @keyframes fadeOutOpacity {
+        100% {
+            opacity: 0;
+        }
+        0% {
+            opacity: 1;
+        }
+    }
+</style>
+
+    <div class="container" >
+
+        <div class="card h-100">
+          <div class="card-header text-center d-flex pb-0 justify-content-between">
+{#              <div id="tablhead" class="flex-grow-1">#}
+                <a id="tablhead" style="flex: 6" >Table of instruments</a>
+{#              </div>#}
+          </div>
+          <div class="card-body pb-0 pl-0 pr-0 pt-3" >
+{#            <table class="table table-striped table-bordered table-sm m-0" id="instrtable">#}
+            <table id="dtBasicExample" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+{#            <table id="dtBasicExample" class="table table-bordered">#}
+
+                     <thead>
+                        <tr>
+                            <th class="th-sm"></th>
+                            <th class="th-sm">Symbol</th>
+                            <th class="th-sm">Name</th>
+                            <th class="th-sm">Exchange</th>
+                            <th class="th-sm">Currency</th>
+                            <th class="th-sm">Region</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for instr_data in table_data  %}
+
+                        <tr>
+                            <td>
+                              <div class="custom-control custom-checkbox">
+                                  <input type="checkbox" class="custom-control-input" value="{{ instr_data.symbol }}" id="customCheck{{ instr_data.id }}">
+                                  <label class="custom-control-label" for="customCheck{{ instr_data.id }}"></label>
+                              </div>
+                            </td>
+                            <td>
+                                <a onclick="instrument_redirect(this)" href="#">{{ instr_data.symbol }}</a>
+                            </td>
+                            <td>{{ instr_data.name }}</td>
+                            <td>{{ instr_data.exchange }}</td>
+                            <td>{{ instr_data.currency }}</td>
+                            <td>{{ instr_data.region }}</td>
+                        </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+            </table>
+{#</div>#}
+{#          </div>#}
+
+
+
+            <div class="card-footer p-1 d-flex justify-content-between ">
+                <div class="d-flex">
+                    <form class="form-inline ml-3 my-auto w-100">
+                        <div class="d-flex">
+                            <input class="form-control mr-sm-2  my-auto w-100 autocomplete" type="search" placeholder="Search symbol" id="searchbar" name="searchbar" size="20" maxlength="30">
+    {#                        <button class="btn btn btn-success my-2 my-sm-0" type="button" id="addbutton">#}
+                            <button class="btn btn btn-success my-2 my-sm-0 d-flex align-items-center" type="button" id="addbutton">
+                                Add
+                            </button>
+                        </div>
+                    </form>
+                    <form class="form-inline ml-1">
+                        <button class="btn btn-info my-2 my-sm-0" type="button" id="showbutton">Show</button>
+                    </form>
+
+                    <form class="form-inline ml-1">
+                        <button class="btn btn-danger my-2 my-sm-0 d-flex align-items-center" type="button" onclick="onclick_deletebutton()" id="deletebutton">Delete
+                        </button>
+                    </form>
+                </div>
+
+                <div class="justify-content-end mr-3" id="pgn">
+                </div>
+            </div>
+          </div>
+        </div>
+
+    </div>
+
+<script>
+
+    function formatDate(stringdate) {
+        var d = new Date(stringdate),
+            month = '' + (d.getMonth() + 1),
+            day = '' + d.getDate(),
+            year = d.getFullYear();
+
+        if (month.length < 2) month = '0' + month;
+        if (day.length < 2) day = '0' + day;
+
+        return [year, month, day].join('-');
+    }
+
+    var oneMonthAgo = new Date(
+        new Date().getFullYear(),
+        new Date().getMonth() - 1,
+        new Date().getDate()
+    );
+
+    function instrument_redirect(ctrl) {
+        var actual_date = new Date()
+        var month_ago = new Date(
+            new Date().getFullYear(),
+            new Date().getMonth() - 1,
+            new Date().getDate()
+        );
+
+        format_startdate = formatDate(month_ago);
+        format_enddate = formatDate(actual_date);
+
+        get_param = '?startdate='+format_startdate+'&enddate='+format_enddate
+        window.location.replace(window.location.href + $(ctrl).text() + get_param);
+    }
+
+    var dtable;
+    $(document).ready(function () {
+        dtable = $('#dtBasicExample').DataTable({
+                "paging":   true,
+                "ordering": true,
+                "info":     false,
+                "bInfo" :   false,
+                "language": {
+                            lengthMenu: "_MENU_",
+                            search: "_INPUT_",
+                            searchPlaceholder: "Table search"
+                            },
+        initComplete : function() {
+            $("#dtBasicExample_filter").detach().insertBefore('#tablhead');
+            $("#dtBasicExample_length").detach().insertAfter('#tablhead');
+            $("#dtBasicExample_paginate").detach().appendTo('#pgn');
+        }
+
+        });
+        document.getElementById("dtBasicExample_filter").style.flex = "1"
+        document.getElementById("dtBasicExample_length").style.flex = "1"
+        init_listeners();
+    });
+
+
+    $('#searchbar').on('input propertychange change', function() {
+
+
+        $(".autocomplete").autocomplete({
+                                minLength: 0,
+                                delay: 0,
+                                source: function(request, response) {
+                    {# "i" == CASE INSENSITIVE, "" == CASE SENSITIVE #}
+                    var matcher = new RegExp("^" + $.ui.autocomplete.escapeRegex(request.term), "i");
+                    var data = $.grep( {{ instruList|safe }}, function(value) {
+                        return matcher.test( value.label || value.value || value );
+                    });
+                    response(data.slice(0, 5));
+                }
+        });
+
+        $('#showbutton').unbind('click').click(function() {
+            window.location.replace(window.location.href + $('#searchbar').val());
+         });
+    });
+
+
+    $('#addbutton').unbind('click').click(function () {
+
+        $("#addbutton").prepend(`<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>`);
+
+        var portfolio_name = window.location.href.split('/').slice(-2)[0]
+        $.ajax({
+            type: "POST",
+            url: "/portfolio/<str:portfolio>/",
+            data: {
+                add_instrument: '',
+                searchinput: $('#searchbar').val(),
+                portfolio_name: portfolio_name,
+                "csrfmiddlewaretoken": "{{ csrf_token }}"
+            },
+            success: function (data) {
+                dtable.clear();
+                const keys = Object.keys(data.table_data);
+                for (const key in keys) {
+                   dtable.row.add([
+                       '<div class="custom-control custom-checkbox">' +
+                       '<input type="checkbox" class="custom-control-input" value="' + data.table_data[key][1] + '" id="customCheck' + data.table_data[key][0] + '">' +
+                       '<label class="custom-control-label" for="customCheck' + data.table_data[key][0] + '"></label>' +
+                       '</div>',
+                       '<a onclick="instrument_redirect(this)" href="#">' + data.table_data[key][1] + '</a>',
+                       data.table_data[key][2],
+                       data.table_data[key][3],
+                       data.table_data[key][4],
+                       data.table_data[key][5],
+                   ]).draw();
+                }
+
+                $('#searchbar').val('')
+                init_listeners();
+                update_messages(data.messages);
+                $(".spinner-border").remove();
+            }
+        })
+     });
+
+
+
+    $('#showbutton').unbind('click').click(function() {
+        window.location.replace(window.location.href + $('#searchbar').val());
+    });
+
+    function sleep(ms) {
+        return new Promise(res => setTimeout(res, ms));
+    }
+    var timeoutss=[]
+    async function update_messages(messages){
+        {#var id = window.setTimeout(function() {}, 0);#}
+        while (timeoutss.length !== 0) {
+            {#window.clearTimeout(id); // will do nothing if no timeout with id is present#}
+
+            await sleep(1000);
+        }
+        $("#div_messages").empty();
+        $.each(messages, function (i, m) {
+            $("#div_messages").append("<div class='alert alert-"+m.level+"''>"+m.message+"</div>");
+        })
+
+        var id = setTimeout(function(){
+           $("#div_messages").addClass('fade-out');
+           timeoutss.pop();
+         }, 1000);
+
+        timeoutss.push(id)
+
+        var id2 = setTimeout(function(){
+            $("#div_messages").removeClass('fade-out');
+            $("#div_messages").removeClass('d-none');
+            $("#div_messages").empty();
+
+            timeoutss.pop();
+         }, 4000);
+         timeoutss.push(id2)
+    }
+
+
+
+    function onclick_deletebutton() {
+    var values = [];
+    $("input[type=checkbox]:checked").each(function() {
+        values.push($(this).val());
+    });
+
+
+        $( "#deletebutton" ).prepend( `<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>` );
+
+            var PortfName = window.location.href.split('/').slice(-2)[0]
+            $.ajax({
+            type: "POST",
+            url: "/portfolio/<str:portfolio>/",
+            data: {
+                delete_instrument: '',
+                instruments : values.join(),
+                url_path: PortfName,
+                "csrfmiddlewaretoken": "{{ csrf_token }}"
+            },
+            success: function(data) {
+
+
+                const keys = Object.keys(data.table_data);
+
+                if (keys.length === 0){
+                    dtable.clear();
+                    dtable.draw();
+                } else {
+                    dtable.clear();
+                    const keys = Object.keys(data.table_data);
+                    for (const key in keys) {
+                        dtable.row.add([
+                            '<div class="custom-control custom-checkbox">' +
+                            '<input type="checkbox" class="custom-control-input" value="' + data.table_data[key][1] + '" id="customCheck' + data.table_data[key][0] + '">' +
+                            '<label class="custom-control-label" for="customCheck' + data.table_data[key][0] + '"></label>' +
+                            '</div>',
+                            '<a onclick="instrument_redirect(this)" href="#">' + data.table_data[key][1] + '</a>',
+                            data.table_data[key][2],
+                            data.table_data[key][3],
+                            data.table_data[key][4],
+                            data.table_data[key][5],
+                        ]).draw();
+                    }
+                }
+
+                init_listeners();
+                update_messages(data.messages);
+                $( ".spinner-border" ).remove();
+                $("#deletebutton_loading").contents().unwrap();
+
+            },
+            error: function (data){
+
+            }
+        })
+    }
+
+
+    function init_listeners(){
+                        $('#deletebutton').prop('disabled', true);
+                $('#addbutton').prop('disabled', true);
+                $('#showbutton').prop('disabled', true);
+
+                 $(function(){
+                    $('#showbutton').blur();
+                });
+
+                $('.custom-control-input').change(
+                    function() {
+                    $('#deletebutton').prop('disabled', $('.custom-control-input:checked').length == 0);
+                    }
+                );
+
+                const searchbarDOM = document.getElementById('searchbar');
+                const addbuttonDOM = document.getElementById('addbutton');
+                const showbuttonDOM = document.getElementById('showbutton');
+
+                const inputHandler = function(e) {
+                    if (e.target.value !== "") {
+                        $("#addbutton").prop( "disabled", true )
+                        addbuttonDOM.disabled = false
+                        showbuttonDOM.disabled = false
+                    } else {
+                        $("#addbutton").prop( "disabled", false )
+                        addbuttonDOM.disabled = true
+                        showbuttonDOM.disabled = true
+                    }
+                }
+
+                searchbarDOM.addEventListener('input', inputHandler);
+                searchbarDOM.addEventListener('propertychange', inputHandler); // for IE8
+    }
+
+    </script>
+
+{% endblock content %}
+

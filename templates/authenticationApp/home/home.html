@@ -1,0 +1,349 @@
+{% extends "core/base/base.html" %}
+{% block content %}
+
+
+<script src="https://code.highcharts.com/stock/highstock.js"></script>
+<script src="https://code.highcharts.com/stock/modules/data.js"></script>
+<script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/stock/modules/export-data.js"></script>
+
+
+<style>
+
+.fade-out {
+	opacity: 0;
+	animation-name: fadeOutOpacity;
+	animation-iteration-count: 1;
+	animation-timing-function: ease-out;
+	animation-duration: 3s;
+ }
+
+@keyframes fadeOutOpacity {
+    100% {
+		opacity: 0;
+	}
+    0% {
+		opacity: 1;
+	}
+ }
+</style>
+
+<div class="col-xl-12">
+{#              <div class="content-section d-collumn">#}
+
+
+    {% if portofios_cards_bool == False %}
+
+
+           <!--Carousel Wrapper-->
+          <div id="multi-item-example" class="carousel slide carousel-multi-item" data-interval="false" data-ride="carousel">
+
+            <!--Controls-->
+                <div class="controls-top mb-1">
+                    <a class="btn pt-1 pb-1 pl-1 pr-1" id="portfolio_arrow_left" href="#multi-item-example" data-slide="prev"><i class="fa fa-chevron-left portfolio_arrow_left"></i>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="black" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
+                        </svg>
+                    </a>
+                    <a class="btn pt-1 pb-1 pl-1 pr-1" id="portfolio_arrow_right" href="#multi-item-example" data-slide="next"><i class="fa fa-chevron-right portfolio_arrow_right"></i>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="black" class="bi bi-arrow-right-circle" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/>
+                        </svg>
+                    </a>
+                </div>
+            <!--/.Controls-->
+
+            <!--Slides-->
+
+                <div class="carousel-inner portfolio-cards" role="listbox">
+
+                    {% for items in data.card_data %}
+
+                        {#  #first iteration #}
+                        {% if forloop.counter == 1 %}
+                            <div class="carousel-item portfolio-cards active" >
+                        {% else %}
+                            <div class="carousel-item portfolio-cards">
+                        {% endif %}
+
+                                <div class="row">
+
+                                    {% for item in items %}
+
+                                        <div class="col-md-4">
+                                            <div class="card mb-2">
+                                                <h4 class="card-header d-flex justify-content-center align-items-center">{{ item.1 }}</h4>
+                                                <div class="card-body">
+
+                                                    <p class="card-text">{{ item.3 }}</p>
+                                                </div>
+                                                <div class="card-footer d-flex justify-content-center align-items-center">
+                                                    <a class="btn btn-primary" id="btn{{ item.0 }}">Show details</a>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    {% endfor %}
+
+                                    <div class="col-md-8 d-none portofio_details">
+                                        <div class="card mb-2">
+                                            <div class="card-body">
+                                                <p class="card-text portfolio-change"></p>
+                                                <p class="card-text intrument-increase"></p>
+                                                <p class="card-text intrument-decrease"></p>
+                                            </div>
+
+                        {#                    <div class="card-body">#}
+                                            <div id="container{{forloop.counter0}}" style="height: 400px; min-width: 310px"></div>
+                        {#                    </div>#}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    {% endfor %}
+                </div>
+            <!--/.Slides-->
+          </div>
+         <!--/.Carousel Wrapper-->
+
+    {% else %}
+        <div class="card"></div>
+    {% endif %}
+</div>
+
+
+<script>
+
+    $(document).ready(function(){
+    });
+
+    function revert_cards(this_instance, active_cards){
+
+        $(this_instance).removeClass('user-choosed-card');
+        $('.carousel-item.active').children('.row').children('.col-md-8.portofio_details').addClass('d-none');
+        $(this_instance).removeClass('btn-secondary');
+        $(this_instance).addClass('btn-primary');
+        $(this_instance).text('Show details');
+
+        $('#portfolio_arrow_left').removeClass('disabled');
+        $('#portfolio_arrow_right').removeClass('disabled');
+
+        if (btn_num % 3 === 0){
+            {# if first card is called, then check if right siblings exists #}
+            if (active_cards.length === 1){
+
+            } else if (active_cards.length === 2){
+                $(active_cards[1]).removeClass('d-none')
+            } else if (active_cards.length === 3) {
+                $(active_cards[1]).removeClass('d-none')
+                $(active_cards[2]).removeClass('d-none')
+            }
+
+        } else if (btn_num % 3 === 1){
+            {# if first card is called, then check if right sibling exists #}
+            {# no need to check left side because otherwise the second card would not exist #}
+            if (active_cards.length === 2){
+                $(active_cards[0]).removeClass('d-none')
+            } else if (active_cards.length === 3) {
+                $(active_cards[0]).removeClass('d-none')
+                $(active_cards[2]).removeClass('d-none')
+            }
+
+        }else if (btn_num % 3 === 2) {
+            $(active_cards[0]).removeClass('d-none');
+            $(active_cards[1]).removeClass('d-none')
+        }
+
+    }
+
+    function update_messages(messages){
+        {#$("#div_messages").html("");#}
+        $("#div_messages").empty();
+        $.each(messages, function (i, m) {
+            $("#div_messages").append("<div class='alert alert-"+m.level+"''>"+m.message+"</div>");
+        })
+        setTimeout(function(){
+           $("#div_messages").addClass('fade-out');
+         }, 5000);
+
+        setTimeout(function(){
+            $("#div_messages").removeClass('fade-out');
+            $("#div_messages").removeClass('d-none');
+            $("#div_messages").empty();
+         }, 8000);
+    }
+
+    $('.btn.btn-primary').unbind('click').click(function() {
+        btn_num = parseInt(this.id.substring(3));
+        active_cards = $('.carousel-item.active').find('.col-md-4')
+        this_var = this
+        $(this_var).prepend(`<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>`);
+
+
+        var portofolio_tag = $(this).parent().siblings('.card-header')
+        var portfolio_name = portofolio_tag[0].innerHTML
+
+
+        if ($(this).hasClass('user-choosed-card')){
+            revert_cards(this, active_cards)
+            return
+        }
+
+
+        $.ajax({
+            type: "POST",
+            url: "/home/",
+            data: {
+                "csrfmiddlewaretoken": "{{ csrf_token }}",
+                show_portfolio_details:'',
+                portfolio: portfolio_name
+            },
+            success: function(data) {
+
+                 {#No stocks in portfolio #}
+                if ("messages" in data) {
+                    update_messages(data.messages)
+                    $(".spinner-border").remove();
+                    return
+                }
+
+                if (btn_num % 3 === 0){
+
+                    {# if first card is called, then check if right siblings exists #}
+                    if (active_cards.length === 1){
+
+                    } else if (active_cards.length === 2){
+                        $(active_cards[1]).addClass('d-none')
+                    } else if (active_cards.length === 3) {
+                        $(active_cards[1]).addClass('d-none')
+                        $(active_cards[2]).addClass('d-none')
+                    }
+
+                } else if (btn_num % 3 === 1){
+                    {# if first card is called, then check if right sibling exists #}
+                    {# no need to check left side because otherwise the second card would not exist #}
+                    if (active_cards.length === 2){
+                        $(active_cards[0]).addClass('d-none')
+                    } else if (active_cards.length === 3) {
+                        $(active_cards[0]).addClass('d-none')
+                        $(active_cards[2]).addClass('d-none')
+                    }
+
+                }else if (btn_num % 3 === 2){
+                    {# no need to check because otherwise the third card would not exist #}
+                    {# only all cards are possible in this body #}
+                    $(active_cards[0]).addClass('d-none')
+                    $(active_cards[1]).addClass('d-none')
+                }
+
+                $('.carousel-item.active').children('.row').children('.col-md-8.d-none.portofio_details').removeClass('d-none');
+                $(this_var).removeClass('btn-primary')
+                $(this_var).addClass('btn-secondary')
+                $(this_var).addClass('user-choosed-card')
+                $(this_var).text('Back');
+
+                $('#portfolio_arrow_left').addClass('disabled');
+                $('#portfolio_arrow_right').addClass('disabled');
+
+                var portofolio_details = $(this_var).parent().parent().parent().siblings('.col-md-8.portofio_details')[0]
+
+                if (data.portfolio_change > 0) {
+                    $(portofolio_details).find('.card-text.portfolio-change')[0].innerHTML = 'Today portoflio % change: '+data.portfolio_change+'% increase'
+                } else if (data.portfolio_change < 0) {
+                    $(portofolio_details).find('.card-text.portfolio-change')[0].innerHTML = 'Today portoflio % change: '+data.portfolio_change+'% decreate'
+                } else if (data.portfolio_change === 0) {
+                    $(portofolio_details).find('.card-text.portfolio-change')[0].innerHTML = 'Portfolio has no change today.'
+                } else {
+                    $(portofolio_details).find('.card-text.portfolio-change')[0].innerHTML = 'No instrument in the portfolio has a share.'
+                }
+
+                if (data.portfolio_change !== '' && !("no_bought_stock" in data)) {
+                    if (data.top3_increase.length !== 0) {
+                        $(portofolio_details).find('.card-text.intrument-increase')[0].innerHTML = 'TOP3 stock increase: ' + data.top3_increase[0]
+                    } else {
+                        $(portofolio_details).find('.card-text.intrument-increase')[0].innerHTML = 'Any instrument has not increased today.'
+                    }
+
+                    if (data.top3_decrease.length !== 0) {
+                        $(portofolio_details).find('.card-text.intrument-decrease')[0].innerHTML = 'TOP3 stock decrease: ' + data.top3_decrease[0]
+                    } else {
+                        $(portofolio_details).find('.card-text.intrument-decrease')[0].innerHTML = 'Any instrument has not decreased today.'
+                    }
+                }
+
+                var nodes = Array.prototype.slice.call( $('.carousel-inner.portfolio-cards').children() )
+                liRef = $('.carousel-inner.portfolio-cards').children('.carousel-item.active')[0]
+
+                var container_num = nodes.indexOf( liRef ).toString()
+
+                var highchart_container = 'container'.concat(container_num)
+
+                const line_chart = Highcharts.stockChart(highchart_container, {
+                    chart: {
+                        type: 'line',
+                        // Edit chart spacing
+
+                        // Explicitly tell the width and height of a chart
+                        width: null,
+                        height: null,
+                    },
+                    rangeSelector: {
+                        selected: 1
+                    },
+                    subtitle: {
+                        text: ''
+                    },
+                    {#xAxis: {#}
+                    {#    type: 'datatime',#}
+                    {#    categories: {{ data.stock_id|safe  }},#}
+                    {#    crosshair: true#}
+                    {# },#}
+                    yAxis: {
+                        min: 0,
+                        title: {
+                            text: 'Price'
+                        }
+                    },
+                    tooltip: {
+                        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                                     '<td style="padding:0"><b>{point.y:.1f} {{data.currency}}</b></td></tr>',
+                        footerFormat: '</table>',
+                        shared: true,
+                        useHTML: true
+                    },
+                    plotOptions: {
+                        column: {
+                            pointPadding: 0.2,
+                            borderWidth: 0
+                        }
+                    },
+                    series: [{
+                        name: 'Date',
+                        marker: {
+                            enabled: true,
+                            radius: 3
+                        },
+                        data: data.line_chart_data,
+                    }],
+                    responsive: {
+                        rules: [{
+                            condition: {
+                                maxWidth: 1500
+                            },
+                        }]
+                    }
+                });
+
+                $(".spinner-border").remove();
+            }
+        })
+    })
+
+
+</script>
+
+
+
+{% endblock content %}
+

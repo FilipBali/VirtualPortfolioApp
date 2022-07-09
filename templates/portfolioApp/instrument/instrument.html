@@ -1,0 +1,2725 @@
+{% extends "core/base/base.html" %}
+{% load crispy_forms_filters %}
+{% block content %}
+
+{# scripts #}
+
+{#    <script src="https://code.highcharts.com/stock/highstock.js"></script>#}
+{#    <script src="https://code.highcharts.com/stock/modules/data.js"></script>#}
+{#    <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>#}
+
+    <script src="https://code.highcharts.com/stock/highstock.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/data.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/export-data.js"></script>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.js" integrity="sha512-n/4gHW3atM3QqRcbCn6ewmpxcLAHGaDjpEBu4xZd47N0W2oQ+6q7oc3PXstrJYXcbNU1OHdQ1T7pAP+gi5Yu8g==" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.js" integrity="sha512-JGKswjfABjJjtSUnz+y8XUBjBlwM1UHNlm2ZJN7A2a9HUYT3Mskq+SacsI35k4lok+/zetSxhZjKS3r3tfAnQg==" crossorigin="anonymous"></script>
+{#<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.css" integrity="sha512-urpIFwfLI9ZDL81s6eJjgBF7LpG+ROXjp1oNwTj4gSlCw00KiV1rWBrfszV3uf5r+v621fsAwqvy1wRJeeWT/A==" crossorigin="anonymous" />#}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/humanity/jquery-ui.css" integrity="sha512-5yvuF++nUMN5/UZ7b0Qo4G2njexGfTzcO0hPhtMVeCb19wX9paRbEZkFwE2fpTPyfhIMPA96BlUVzewW0y4etA==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/redmond/theme.css" integrity="sha512-usiTOrh4xiWSunNKyviK8pe1+5kZVxYGjGoYDybac7NzFrMYtPNi+DDsf4gYEm5KS3BVJJjzdLbPbBJ+u9sBEQ==" crossorigin="anonymous" />
+
+    {#<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.js"></script>#}
+
+{#    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>#}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+
+{#    <link type='text/css' rel='stylesheet' href="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.css"/>#}
+{#    <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.js"></script>#}
+
+    {# datetimepicker #}
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.js" integrity="sha512-s5u/JBtkPg+Ff2WEr49/cJsod95UgLHbC00N/GglqdQuLnYhALncz8ZHiW/LxDRGduijLKzeYb7Aal9h3codZA==" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.css" integrity="sha512-LT9fy1J8pE4Cy6ijbg96UkExgOjCqcxAC7xsnv+mLJxSvftGVmmc236jlPTZXPcBRQcVOWoK1IJhb1dAjtb4lQ==" crossorigin="anonymous" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/i18n/jquery-ui-timepicker-addon-i18n.min.js" integrity="sha512-t2ZIJH81Sh+SWSb4BuA9en4j6fwja+sYOEXbqoepD9lJ+efUGD94gSWqdmgQchGmPez2ojECq4Fm6bKMUAzIiQ==" crossorigin="anonymous"></script>
+    {# end datetimepicker #}
+
+{# end scripts #}
+
+<style>
+
+    /*left right modal*/
+    .modal.right_modal{
+      position: fixed;
+      z-index: 99999;
+    }
+    .modal.right_modal .modal-dialog {
+      position: fixed;
+      margin: auto;
+      width: 45%;
+      height: 100%;
+      -webkit-transform: translate3d(0%, 0, 0);
+          -ms-transform: translate3d(0%, 0, 0);
+           -o-transform: translate3d(0%, 0, 0);
+              transform: translate3d(0%, 0, 0);
+    }
+
+
+    @media (min-width: 576px) {
+        .right_modal .modal-dialog {
+            max-width: 100%;
+        }
+    }
+
+    /*Right*/
+    .modal.right_modal.fade .modal-dialog {
+      right: -50%;
+      -webkit-transition: opacity 0.3s linear, right 0.3s ease-out;
+         -moz-transition: opacity 0.3s linear, right 0.3s ease-out;
+           -o-transition: opacity 0.3s linear, right 0.3s ease-out;
+              transition: opacity 0.3s linear, right 0.3s ease-out;
+    }
+
+    .modal.right_modal.fade.show .modal-dialog {
+      right: 0;
+      box-shadow: 0 0 19px rgba(0,0,0,.5);
+    }
+
+    /* ----- MODAL STYLE ----- */
+    .modal-content {
+      border-radius: 0;
+      border: none;
+    }
+
+
+
+    .modal-header.left_modal, .modal-header.right_modal {
+
+      padding: 10px 15px;
+      border-bottom-color: #EEEEEE;
+      background-color: #FAFAFA;
+    }
+
+    .modal_outer .modal-body {
+        /*height:90%;*/
+        overflow-y: auto;
+        overflow-x: hidden;
+        height: 91vh;
+    }
+
+
+    .fade-out {
+	opacity: 0;
+	animation-name: fadeOutOpacity;
+	animation-iteration-count: 1;
+	animation-timing-function: ease-out;
+	animation-duration: 3s;
+    }
+
+    @keyframes fadeOutOpacity {
+        100% {
+            opacity: 0;
+        }
+        0% {
+            opacity: 1;
+        }
+    }
+</style>
+
+
+<div class="container-fluid">
+    <div class="centered">
+        <div class="col-md-12">
+
+            {#####################################################################################################}
+            {#                                          FULLSCREEN PANEL                                         #}
+            {#####################################################################################################}
+            <div class="card h-100 mb-2 d-none" id="fullscreen_panel">
+                <div class="card-body pb-0 pt-0 pl-0 pr-0 d-flex">
+                    <button class="btn  btn-outline-danger mr-3" id="tools_back">Close</button>
+
+                    <div class="interday-box">
+                        <div class="list-group list-group-horizontal" id="myList" role="tablist">
+                            <a class="list-group-item list-group-item-action custom-horizontal-navigation active" data-toggle="list" href="#home">Line</a>
+                            <a class="list-group-item list-group-item-action custom-horizontal-navigation" data-toggle="list" href="#profile">Candlestick</a>
+                        </div>
+                    </div>
+
+                    <div class="intraday-box d-none">
+                        <div class="list-group list-group-horizontal" id="myList" role="tablist">
+                            <a class="list-group-item list-group-item-action custom-horizontal-navigation-intraday active" data-toggle="list" href="#intraday_home">Line</a>
+                            <a class="list-group-item list-group-item-action custom-horizontal-navigation-intraday" data-toggle="list" href="#intraday_profile">Candlestick</a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+            {#####################################################################################################}
+            {#                                       COMPARE UPPER PANEL                                         #}
+            {#####################################################################################################}
+            <div class="d-none" id="compare_panel">
+                <button class="btn btn-outline-danger mr-3" id="compare_back" style="float: left;
+                            position: absolute;">Close</button>
+                <div class="d-flex justify-content-around">
+                    <div class="d-flex">
+                    <div class="d-flex align-items-center">
+                        <div class="pb-0 pt-0 pl-0 pr-0 d-flex">
+
+
+                            <div class="interday-box">
+                                <div class="list-group list-group-horizontal" id="myList" role="tablist">
+                                    <a class="list-group-item list-group-item-action compare-first-horizontal-navigation active" data-toggle="list" href="#home" style="border-bottom-left-radius: 15pt; border-top-left-radius: 15pt;">Line</a>
+                                    <a class="list-group-item list-group-item-action compare-first-horizontal-navigation" data-toggle="list" href="#profile" style="border-bottom-right-radius: 15pt; border-top-right-radius: 15pt;">Candlestick</a>
+                                </div>
+                            </div>
+                            <div class="intraday-box d-none">
+                                <div class="list-group list-group-horizontal" id="myList" role="tablist">
+                                    <a class="list-group-item list-group-item-action compare-first-horizontal-navigation-intraday active" data-toggle="list" href="#intraday_home">Line</a>
+                                    <a class="list-group-item list-group-item-action compare-first-horizontal-navigation-intraday" data-toggle="list" href="#intraday_profile">Candlestick</a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                    <div class="d-flex align-items-center">
+                        <div class="d-flex">
+
+                            <div class="interday-box pl-2 pt-2 pr-2 pb-1">
+                                <div class="list-group list-group-horizontal justify-content-end" id="myList" role="tablist">
+                                    <a class="list-group-item list-group-item-action compare-second-horizontal-navigation active" data-toggle="list" href="#compare_home" style="border-bottom-left-radius: 15pt; border-top-left-radius: 15pt;">Line</a>
+                                    <a class="list-group-item list-group-item-action compare-second-horizontal-navigation" data-toggle="list" href="#compare_profile" style="border-bottom-right-radius: 15pt; border-top-right-radius: 15pt;">Candlestick</a>
+                                </div>
+                            </div>
+                            <div class="intraday-box d-none">
+                                <div class="list-group list-group-horizontal justify-content-end" id="myList" role="tablist">
+                                    <a class="list-group-item list-group-item-action compare-second-horizontal-navigation active" data-toggle="list" href="#compare_intraday_home">Line</a>
+                                    <a class="list-group-item list-group-item-action compare-second-horizontal-navigation" data-toggle="list" href="#compare_intraday_profile">Candlestick</a>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            {#####################################################################################################}
+            {#                                            DETAILS CARD                                           #}
+            {#####################################################################################################}
+            <div class="cards d-flex justify-content-between" id="sliding_cards">
+                {# Details card #}
+                <div class="card w-25 mr-2 bg-light" id="details_card">
+                    <div class="card-header d-flex align-items-center justify-content-center">
+                        Details
+                    </div>
+
+                    <div class="card-body d-flex flex-column table-responsive">
+                        <table class="table mb-0">
+                            <tbody>
+                                <tr>
+                                    {#<th scope="row">1</th>#}
+                                    <td>Name</td>
+                                    <td>{{ data.company_name }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Volume</td>
+                                    <td>{{ data.company_volume }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Primary Exchange</td>
+                                    <td>{{ data.company_primary_exchange }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="align-self-center" style="margin-top: auto;">
+                            <span class="border-top pb-3"></span>
+                            <button class="btn btn-outline-danger" id="remove_from_portfolio">Remove from portfolio</button>
+                        </div>
+                    </div>
+                </div>
+
+            {#####################################################################################################}
+            {#                                            GRAPH CARD                                             #}
+            {#####################################################################################################}
+
+                {################################################}
+                {#                 INTERDAY                     #}
+                {################################################}
+                <div class="main-graph card w-100 h-100">
+                    <div class="tab-content h-100">
+                        <div class="tab-pane h-100 active" id="home" role="tabpanel">
+                            <div class="content-section mb-0 h-100 pb-0 pt-0 pl-0 pr-0">
+                                <div id="main_container_line_interday" class="border h-100"></div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane h-100"  id="profile" role="tabpanel">
+                            <div class="content-section mb-0 h-100 pb-0 pt-0 pl-0 pr-0">
+                                <div id="main_container_candlestink_interday" class="border h-100"></div>
+                            </div>
+                        </div>
+                   </div>
+                </div>
+
+                {################################################}
+                {#                 INTRADAY                     #}
+                {################################################}
+                {# Intraday graph card #}
+                <div class="intraday-graph card d-none w-100 h-100">
+                    <div class="tab-content h-100">
+                        <div class="tab-pane h-100 active" id="intraday_home" role="tabpanel">
+                            <div class="content-section mb-0 h-100 pb-0 pt-0 pl-0 pr-0">
+                                <div id="main_container_line_intraday" class="border h-100"></div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane h-100"  id="intraday_profile" role="tabpanel">
+                            <div class="content-section mb-0 h-100 pb-0 pt-0 pl-0 pr-0">
+                                <div id="main_container_candlestink_intraday" class="border h-100"></div>
+                            </div>
+                        </div>
+                   </div>
+                </div>
+
+
+                {#####################################################################################################}
+                {#                                        COMPARE GRAPH CARD                                         #}
+                {#####################################################################################################}
+                {# Compare graph card #}
+                <div class="compare-graph card d-none w-100 h-100">
+
+                    {################################################}
+                    {#                 INTERDAY                     #}
+                    {################################################}
+                    <div class="interday-box h-100">
+                        <div class="tab-content h-100">
+                            <div class="tab-pane h-100 active" id="compare_home" role="tabpanel">
+                                <div class="content-section mb-0 h-100 pb-0 pt-0 pl-0 pr-0">
+                                    <div id="main_compare_container_line_interday" class="border h-100"></div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane h-100"  id="compare_profile" role="tabpanel">
+                                <div class="content-section mb-0 h-100 pb-0 pt-0 pl-0 pr-0">
+                                    <div id="main_compare_container_candlestink_interday" class="border h-100"></div>
+                                </div>
+                            </div>
+                       </div>
+                    </div>
+
+                    {################################################}
+                    {#                 INTRADAY                     #}
+                    {################################################}
+                    <div class="intraday-box h-100 d-none">
+                        <div class="tab-content h-100">
+                            <div class="tab-pane h-100 active" id="compare_intraday_home" role="tabpanel">
+                                <div class="content-section mb-0 h-100 pb-0 pt-0 pl-0 pr-0">
+                                    <div id="main_compare_container_line_intraday" class="border h-100"></div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane h-100"  id="compare_intraday_profile" role="tabpanel">
+                                <div class="content-section mb-0 h-100 pb-0 pt-0 pl-0 pr-0">
+                                    <div id="main_compare_container_candlestink_intraday" class="border h-100"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+               {#####################################################################################################}
+               {#                                          NAVIGATION PANEL                                         #}
+               {#####################################################################################################}
+
+                {# Navigation card #}
+                <div class="card w-25 ml-2 bg-light" id="navigation_card">
+                    <div class="card-header d-flex align-items-center justify-content-center">
+                        Navigation
+                    </div>
+                    <div class="card-body d-flex flex-column" style="background: #fafafa">
+
+                        {################################################}
+                        {#                 INTERDAY                     #}
+                        {################################################}
+                        <div class="interday-box">
+                            <div class="list-group pb-3" id="myList" role="tablist">
+                                <a class="list-group-item list-group-item-action custom-vertical-navigation active" data-toggle="list" href="#home">Line</a>
+                                <a class="list-group-item list-group-item-action custom-vertical-navigation" data-toggle="list" href="#profile" >Candlestick</a>
+                            </div>
+                        </div>
+
+                        {################################################}
+                        {#                 INTRADAY                     #}
+                        {################################################}
+                        <div class="intraday-box d-none">
+                            <div class="list-group pb-3" id="myList" role="tablist">
+                                <a class="list-group-item list-group-item-action custom-vertical-navigation-intraday active" data-toggle="list" href="#intraday_home">Line</a>
+                                <a class="list-group-item list-group-item-action custom-vertical-navigation-intraday" data-toggle="list" href="#intraday_profile" >Candlestick</a>
+                            </div>
+                        </div>
+
+                        <span class="border-top pb-3"></span>
+                        {# <button class="btn btn-outline-info" type="button" id="updatebutton">Update news</button>#}
+                        <button class="btn  btn-outline-info" id="modal_view_right" data-toggle="modal" data-target="#news_modal">News</button>
+
+                        <span class="border-top pb-3"></span>
+                        <button class="btn  btn-outline-primary" id="show_fullscreen">Fullscreen</button>
+
+                        <span class="border-top pb-3"></span>
+                        <button  class="btn btn-outline-dark w-100" id="btn_historical_prices" name="get_historical">Show historical prices</button>
+{#                        <form action="{% url 'instrument' portfolio=portfolio_data.name stock=stock_data.symbol %}" method="post">#}
+{#                            {% csrf_token %}#}
+{#                            <button  class="btn btn-outline-dark w-100" id="btn_historical_prices" name="get_historical">Show historical prices</button>#}
+{#                        </form>#}
+
+                        <span class="border-top pb-3"></span>
+                        <button class="btn  btn-outline-info" id="stock_analysis">Analysis</button>
+
+                        <span class="border-top pb-3"></span>
+                        <button class="btn  btn-outline-primary" id="stock_compare">Compare</button>
+
+                    </div>
+                </div>
+            </div>
+
+            {#####################################################################################################}
+            {#                                      BOTTOM COMPARE PANEL                                         #}
+            {#####################################################################################################}
+
+            <div id="compare_panel_graphs_details" class="d-none">
+                <div class="d-flex justify-content-around mt-1 mb-1">
+
+                {#####################################################################################################}
+                {#                           LEFT SIDE PANEL (BOTTOM COMPARE PANEL)                                  #}
+                {#####################################################################################################}
+
+                    {################################################}
+                    {#                 INTERDAY                     #}
+                    {################################################}
+                    <div class="interday-box">
+                        <div class="d-flex h-100 pt-3 pr-2 pb-3" style="background: white; border-top-left-radius: 10pt;
+                                                                                                border-bottom-left-radius: 10pt;
+                                                                                                border-top-right-radius: 10pt;
+                                                                                                border-bottom-right-radius: 10pt;">
+                            <div class="input-group input-group-sm ml-2">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text" for="id_startdate_compare_left_interday">Start date</label>
+                                    <input type="text" placeholder="Required field" required id="id_startdate_compare_left_interday">
+                                </div>
+                            </div>
+
+                            <div class="input-group input-group-sm ml-2">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text" for="id_enddate_compare_left_interday">End date</label>
+                                    <input type="text" placeholder="Required field" required id="id_enddate_compare_left_interday">
+                                </div>
+                            </div>
+
+                            <button id="btn_change_dates_compare_left_interday" type="button" class="btn btn-sm btn-primary ml-2">Select</button>
+                        </div>
+                    </div>
+
+                    {################################################}
+                    {#                 INTRADAY                     #}
+                    {################################################}
+                    <div class="intraday-box d-none">
+                        <div class="d-flex h-100 pt-3 pr-2 pl-2 pb-3" style="background: white; border-top-left-radius: 10pt;
+                                                                                                border-bottom-left-radius: 10pt;
+                                                                                                border-top-right-radius: 10pt;
+                                                                                                border-bottom-right-radius: 10pt;">
+                            <div class="input-group input-group-sm">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text" for="id_day_compare_left_intraday">Day</label>
+                                    <input type="text" placeholder="Required field" required id="id_day_compare_left_intraday">
+                                </div>
+                            </div>
+
+                            <button id="btn_change_dates_compare_left_intraday" type="button" class="btn btn-sm btn-primary">Show</button>
+                        </div>
+                    </div>
+
+                    {#####################################################################################################}
+                    {#                                RIGHT SIDE PANEL (BOTTOM COMPARE PANEL)                            #}
+                    {#####################################################################################################}
+                    <div class="d-flex">
+
+                        {################################################}
+                        {#                 INTERDAY                     #}
+                        {################################################}
+                        <div class="interday-box">
+                            <div class="d-flex">
+                                <div class="d-flex h-100 pl-2 pt-2 pb-3" style=" background: white;
+                                                                                      border-top-left-radius: 10pt;
+                                                                                      border-bottom-left-radius: 10pt;">
+                                    <form class="form-inline my-auto w-100">
+                                        <div class="d-flex">
+                                            <input class="form-control mr-sm-2  my-auto w-100 autocomplete" type="search" placeholder="Search symbol" id="id_searchbar_compare_right_interday" name="id_searchbar_compare_right_interday" size="12" maxlength="30">
+                                        </div>
+                                    </form>
+                                </div>
+
+
+                                <div class="d-flex h-100 pt-3 pr-1 pb-3" style="background: white;
+                                                                                     border-top-right-radius: 10pt;
+                                                                                     border-bottom-right-radius: 10pt;">
+                                    <div class="input-group input-group-sm ml-2 mr-1">
+                                        <div class="input-group-prepend">
+                                            <label class="input-group-text" for="id_startdate_compare_right_interday">Start date</label>
+                                            <input type="text" placeholder="Required field" required id="id_startdate_compare_right_interday" size="15">
+                                        </div>
+                                    </div>
+
+                                    <div class="input-group input-group-sm ml-1 mr-1">
+                                        <div class="input-group-prepend">
+                                            <label class="input-group-text" for="id_enddate_compare_right_interday">End date</label>
+                                            <input type="text" placeholder="Required field" required id="id_enddate_compare_right_interday" size="15">
+                                        </div>
+                                    </div>
+
+                                    <button class="btn btn-sm btn-primary ml-1 mr-1" type="button" id="btn_change_dates_compare_right_interday">
+                                        Show
+                                    </button>
+        {#                            <button id="btn_change_dates_compare_left_interday" type="button" class="btn btn-sm btn-primary ml-1 mr-1">Select</button>#}
+                                </div>
+                            </div>
+                        </div>
+
+                        {################################################}
+                        {#                 INTRADAY                     #}
+                        {################################################}
+                        <div class="intraday-box d-none">
+                            <div class="d-flex h-100 pt-1 pr-2 pl-2 pb-1" style="background: white; border-top-left-radius: 10pt;
+                                                                                                    border-bottom-left-radius: 10pt;
+                                                                                                    border-top-right-radius: 10pt;
+                                                                                                    border-bottom-right-radius: 10pt;">
+
+                                <div class="d-flex h-100 pl-2 pt-1 pb-1" style=" background: white;
+                                                                                      border-top-left-radius: 10pt;
+                                                                                      border-bottom-left-radius: 10pt;">
+                                    <form class="form-inline my-auto w-100">
+                                        <div class="d-flex">
+                                            <input class="form-control mr-sm-2  my-auto w-100 autocomplete" type="search" placeholder="Search symbol" id="id_searchbar_compare_right_intraday" name="id_searchbar_compare_right_intraday" size="12" maxlength="30">
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="input-group input-group-sm pt-2 pb-2">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text" for="id_day_compare_right_intraday">Day</label>
+                                        <input type="text" placeholder="Required field" required id="id_day_compare_right_intraday">
+                                    </div>
+                                </div>
+
+                                <button id="btn_change_dates_compare_right_intraday" type="button" class="btn btn-sm btn-primary">Show</button>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+            {# Tool panel #}
+            <div class="cards d-flex justify-content-between pt-2" id="tool_panel">
+                <div class="card col-md-4 h-100 pl-0 pr-0 mr-1">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <p class="mb-0">Graph Tools</p>
+                        <div class="d-flex align-items-center">
+
+                            <div class="input-group input-group-sm">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text mb-0" for="intrument_graph_view_options">Choose a view</label>
+                                    <select name="intrument_graph_view_options" id="intrument_graph_view_options">
+                                        <option selected value="interday">Interday </option>
+                                        <option value="intraday">Intraday</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="">
+
+                        <div class="card-body w-50" id="interday_card">
+                            <div class="input-group input-group-sm mb-2">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text" for="id_startdate">Start date</label>
+                                    <input type="text" placeholder="Required field" required id="id_startdate">
+                                </div>
+                            </div>
+
+                            <div class="input-group input-group-sm mb-2">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text" for="id_enddate">End date</label>
+                                    <input type="text" placeholder="Required field" required id="id_enddate">
+                                </div>
+                            </div>
+
+                            <button id="btn_change_dates" type="button" class="btn btn-sm btn-primary">Show</button>
+                        </div>
+
+                        <div class="card-body w-50 d-none" id="intraday_card">
+                            <div class="input-group input-group-sm mb-2">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text" for="btn_change_dates_intraday_main">Day</label>
+                                    <input type="text" placeholder="Required field" required id="btn_change_dates_intraday_main">
+                                </div>
+                            </div>
+
+                            <button id="btn_change_dates_intraday" type="button" class="btn btn-sm btn-primary">Show</button>
+                        </div>
+
+                        <div class="card-body w-50">
+
+{#                            <div class="input-group input-group-sm">#}
+{#                                <div class="input-group-prepend mb-2">#}
+{#                                    <label class="input-group-text mb-0" for="intrument_prediction_options">Choose a prediction</label>#}
+{#                                    <select name="intrument_prediction_options" id="intrument_prediction_options">#}
+{#                                        <option selected value="linear_regression">Linear regression</option>#}
+{#                                        <option value="auto_arima">Auto ARIMA</option>#}
+{#                                    </select>#}
+{#                                </div>#}
+{#                            </div>#}
+
+                            <div class="" id="interday_card_prediction">
+
+                                <div class="input-group input-group-sm">
+                                    <div class="input-group-prepend mb-2">
+                                        <label class="input-group-text mb-0" for="intrument_prediction_options">Choose a prediction</label>
+                                        <select name="intrument_prediction_options" id="intrument_prediction_options">
+                                            <option selected value="linear_regression">Linear regression</option>
+                                            <option value="auto_arima">Auto ARIMA</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="input-group input-group-sm mb-2 ">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text" for="id_prediction">Predict X days</label>
+                                        <input type="text" placeholder="Default X=7 days"  required id="id_prediction">
+                                    </div>
+                                </div>
+
+                                <div class="input-group input-group-sm mb-2">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text" for="id_prediction_custom_length">From last X days</label>
+                                        <input type="text" placeholder="Default X=(all graph days)" size="23" required id="id_prediction_custom_length">
+                                    </div>
+                                </div>
+
+                                <button id="btn_prediction" type="button" class="btn btn-sm btn-primary">Predict</button>
+                                <button id="btn_delete_prediction" type="button" class="btn btn-sm btn-primary">Delete prediction</button>
+                            </div>
+
+                            <div class="d-none" id="intraday_card_prediction d-none">
+                                <div class="input-group input-group-sm mb-2">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text" for="id_prediction_intraday">Predict X hours</label>
+                                        <input type="text" placeholder="Default X=7 hours"  required id="id_prediction_intraday">
+                                    </div>
+                                </div>
+
+                                <div class="input-group input-group-sm mb-2">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text" for="id_prediction_custom_length_intraday">From last X hours</label>
+                                        <input type="text" placeholder="Default X=(all graph hours)" size="23" required id="id_prediction_custom_length_intraday">
+                                    </div>
+                                </div>
+
+                                <button id="btn_prediction_intraday" type="button" class="btn btn-sm btn-primary">Predict</button>
+                                <button id="btn_delete_prediction_intraday" type="button" class="btn btn-sm btn-primary">Delete prediction</button>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <div class="card col-md-4 h-100 pl-0 pr-0 mr-1">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <p class="mb-0">Personal status</p>
+                        <button class="btn btn btn-secondary my-2 my-sm-0 ml-3" type="button" id="addbutton_modal" data-toggle="modal" data-target="#modal_notification_event">
+                            Create new notification
+                        </button>
+                    </div>
+                    <div class="d-flex">
+                        <div class="card-body w-50">
+                        <div class="input-group input-group-sm mb-2 ml-3">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text" for="id_ownedstocks">Owned stocks</label>
+                                    <input type="text" readonly disabled required id="id_ownedstocks">
+                                </div>
+                            </div>
+
+                            <div class="input-group input-group-sm mb-2 ml-3">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text" for="id_balance">Balance</label>
+                                    <input type="text" readonly disabled required id="id_balance">
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+                <div class="card col-md-3 h-100 pl-0 pr-0 ml-1">
+                    <div class="card-header">Buy & Sell</div>
+                    <div class="card-body">
+
+                        <form method="POST" id="form_buysell" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <fieldset class="form-group">
+                                {{ BuySellStockForm_form|crispy }}
+
+                                <div class="input-group input-group">
+                                    <div class="input-group-prepend w-100">
+                                        <label class="input-group-text" for="id_total_buy">Total</label>
+                                        <input class="w-100" type="text" placeholder="0" required id="id_total_buy">
+                                    </div>
+                                </div>
+                            </fieldset>
+
+                            <button class="btn btn-success" type="button" id="btn_buysell">Buy</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            {# Help modal slides right #}
+            <div class="modal modal_outer right_modal fade" id="news_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2" >
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content h-100" style="background-color: navajowhite;">
+                        <!-- <input type="hidden" name="email_e" value="admin@filmscafe.in"> -->
+                        <div class="modal-header">
+                            <h2 class="modal-title">News:</h2>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body get_quote_view_modal_body">
+                            <div id="accordion">
+                            {% if data.news.data %}
+                                {% for key, news_item in data.news.data.items %}
+
+                                <div class="pb-2">
+                                    <div class="card h-100" style="border-bottom-left-radius: 15px;border-bottom-right-radius: 15px;">
+                                        <div class="card-header border-dark" style="background-color: papayawhip;" id="heading{{ news_item.id }}">
+                                            <div class="mb-0 d-flex align-items-center ">
+                                                <label  class="btn btn-link flex-grow-1 text-left text-dark mb-0 collapsed" data-toggle="collapse" data-target="#collapse{{ news_item.id }}" aria-expanded="false" aria-controls="collapse{{ news_item.id }}">
+                                                    <h6>{{ news_item.article_headline }}</h6>
+                                                </label >
+                                                <p class="text-dark">{{ news_item.datetime }}</p>
+                                            </div>
+                                        </div>
+
+                                        <div id="collapse{{ news_item.id }}" class="collapse" aria-labelledby="heading{{ news_item.id }}" data-parent="#accordion">
+                                            <div class="card-body bg-light border-dark">
+                                                {{ news_item.article_text }}
+                                            </div>
+
+                                            <div class="card-footer border-dark" style="background-color: silver;border-bottom-left-radius: 15px;border-bottom-right-radius: 15px;">Source:
+                                                {% if data.news.instrument_source == '1' %}
+                                                    <a href="http://{{news_item.url}}">{{news_item.source}}</a>
+                                                {% elif data.news.instrument_source == '2' %}
+                                                    <a href="{{news_item.url}}">{{news_item.source}}</a>
+                                                {% endif %}
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                Sorry, but no news available about this financial instrument. It happens if service do not contain any news for the financial instrument.
+                            {% endif %}
+                            </div>
+                        </div>
+                    </div><!-- modal-content -->
+                </div><!-- modal-dialog -->
+            </div><!-- modal -->
+        </div>
+    </div>
+</div>
+
+
+
+<!-- modal - Create notification event -->
+    <div class="modal fade" id="modal_notification_event" tabindex="-1" role="dialog" aria-labelledby="modal_notification_event_label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content" style="border-bottom-left-radius: 15px;
+                                              border-bottom-right-radius: 15px;
+                                              border-top-left-radius: 15px;
+                                              border-top-right-radius: 15px;">
+                <div class="modal-header bg-danger" style="border-top-left-radius: 15px;
+                                                           border-top-right-radius: 15px;">
+                    <h5 class="modal-title" id="modal_notification_event_label">Create notification event</h5>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <fieldset class="form-group">
+                            {{ notification_event_form|crispy }}
+                        </fieldset>
+                        {# <div class="form-group">#}
+                        {# <button class="btn btn-outline-info" type="submit">Update</button>#}
+                        {# </div>#}
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button class="btn btn-success" type="submit">Save</button>
+                        </div>
+                    </form>
+                </div>
+
+{#                <div class="modal-footer">#}
+{#                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close.</button>#}
+{#                </div>#}
+            </div>
+        </div>
+    </div>
+<!-- end modal - Delete error -->
+
+<!-- modal - Delete error -->
+    <div class="modal fade" id="modal_error_delete" tabindex="-1" role="dialog" aria-labelledby="modal_error_delete_label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content" style="border-bottom-left-radius: 15px;
+                                              border-bottom-right-radius: 15px;
+                                              border-top-left-radius: 15px;
+                                              border-top-right-radius: 15px;">
+                <div class="modal-header bg-danger" style="border-top-left-radius: 15px;
+                                                           border-top-right-radius: 15px;">
+                    <h5 class="modal-title" id="modal_error_delete_label">Error!</h5>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label">Error message:</label>
+                            <textarea readonly class="form-control" id="message-text"></textarea>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close.</button>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- end modal - Delete error -->
+
+
+
+<script>
+
+    {##################################################################################################################}
+    {#############################################                   ##################################################}
+    {############################################# HISTORICAL PRICES ##################################################}
+    {#############################################                   ##################################################}
+    {##################################################################################################################}
+    $('#btn_historical_prices').unbind('click').click(function() {
+
+        var stock = window.location.href.split('/').slice(-2)[0]
+        var startdate = $('#id_startdate').val()
+        var enddate = $('#id_enddate').val()
+
+        if (startdate.slice(-1) === ' '){
+            startdate = startdate.slice(0, -1);
+        }
+
+        if (enddate.slice(-1) === ' '){
+            enddate = enddate.slice(0, -1);
+        }
+
+
+        if (startdate === "" && enddate === ""){
+            alert("Error! Set \"Start date\" and \"End date\".");
+            return false;
+
+        } else if (startdate === ""){
+            alert("Error! Set \"Start date\".");
+            return false;
+
+        } else if (enddate === ""){
+            alert("Error! Set \"End date\".");
+            return false;
+        }
+
+        start_date = new Date(startdate);
+        end_date = new Date(enddate);
+        today_date = new Date();
+
+        if (start_date > end_date){
+            alert("Error! \"Start date\" can not be bigger than \"End date\".");
+            return false;
+        }
+
+        if ((start_date.toISOString() > today_date) || (end_date.toISOString() > today_date)){
+            alert("Error! Dates can not be in future.");
+            return false;
+        }
+
+
+       location.href=(('/historical_data/?stock='+stock+'&startdate='+startdate+'&enddate='+enddate))
+    })
+
+    {##################################################################################################################}
+    {#############################################                   ##################################################}
+    {#############################################    CHANGE DATES   ##################################################}
+    {#############################################                   ##################################################}
+    {##################################################################################################################}
+
+
+    $('#btn_change_dates').unbind('click').click(function() {
+
+        $(this).prepend(`<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>`);
+
+        var stock = window.location.href.split('/').slice(-2)[0]
+        var startdate = $('#id_startdate').val()
+        var enddate = $('#id_enddate').val()
+
+        if (startdate === "" && enddate === ""){
+            alert("Error! Set \"Start date\" and \"End date\".");
+            $(".spinner-border").remove();
+            return false;
+
+        } else if (startdate === ""){
+            alert("Error! Set \"Start date\".");
+            $(".spinner-border").remove();
+            return false;
+
+        } else if (enddate === ""){
+            alert("Error! Set \"End date\".");
+            $(".spinner-border").remove();
+            return false;
+        }
+
+        start_date = new Date(startdate);
+        end_date = new Date(enddate);
+        today_date = new Date();
+
+        if (start_date > end_date){
+            alert("Error! \"Start date\" can not be bigger than \"End date\".");
+            $(".spinner-border").remove();
+            return false;
+        }
+
+        if ((start_date > today_date) || (end_date > today_date)){
+            alert("Error! Dates can not be in future.");
+            $(".spinner-border").remove();
+            return false;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/portfolio/<str:portfolio>/<str:stock>/",
+            data: {
+                "csrfmiddlewaretoken": "{{ csrf_token }}",
+                change_graph_data:'',
+                stock: stock,
+                startdate: startdate,
+                enddate: enddate,
+            },
+            success: function(data) {
+
+                line_chart.series[0].update({
+                  {#categories: data.stock_id,#}
+                  data: data.line_chart_data
+                }, false);
+                line_chart.redraw();
+                line_chart.yAxis[0].setExtremes(data.line_chart_axisY_min,data.line_chart_axisY_max);
+                line_chart.xAxis[0].setExtremes(null,null);
+
+
+                candlestink_chart.series[0].update({
+                    data: data.stock_candle,
+                }, false);
+                candlestink_chart.redraw();
+                candlestink_chart.xAxis[0].setExtremes(null,null);
+
+                $(".spinner-border").remove();
+            }
+        })
+    })
+
+
+    $('#btn_change_dates_compare_left_intraday').unbind('click').click(function() {
+
+        $(this).prepend(`<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>`);
+
+        var stock = window.location.href.split('/').slice(-2)[0]
+        var day = $('#id_day_compare_left_intraday').val()
+
+        if (day === "") {
+            alert("Error! Set \"Day\".");
+            $(".spinner-border").remove();
+            return false;
+        }
+
+        day_date = new Date(day);
+        today_date = new Date();
+        if ((day_date > today_date)){
+            alert("Error! Date can not be in future.");
+            $(".spinner-border").remove();
+            return false;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/portfolio/<str:portfolio>/<str:stock>/",
+            data: {
+                "csrfmiddlewaretoken": "{{ csrf_token }}",
+                change_graph_data_intraday:'',
+                stock: stock,
+                day: day,
+            },
+            success: function(data) {
+
+                if ("not_supported" in data) {
+                    update_messages(data.messages);
+                    $(".spinner-border").remove();
+                    return
+                }
+
+                intraday_line_chart.series[0].update({
+                  {#categories: data.stock_id,#}
+                  data: data.stock_candle
+                }, false);
+                intraday_line_chart.redraw();
+
+                intraday_line_chart.xAxis[0].setExtremes(null,null);
+
+                intraday_candlestink_chart.series[0].update({
+                    data: data.stock_candle,
+                }, false);
+                intraday_candlestink_chart.redraw();
+                intraday_candlestink_chart.xAxis[0].setExtremes(null,null);
+
+                $(".spinner-border").remove();
+            }
+        })
+    })
+
+
+    $('#btn_change_dates_intraday').unbind('click').click(function() {
+
+        $(this).prepend(`<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>`);
+
+        var stock = window.location.href.split('/').slice(-2)[0]
+        var day = $('#btn_change_dates_intraday_main').val()
+
+        if (day === "") {
+            alert("Error! Set \"Day\".");
+            $(".spinner-border").remove();
+            return false;
+        }
+
+        day_date = new Date(day);
+        today_date = new Date();
+        if ((day_date > today_date)){
+            alert("Error! Date can not be in future.");
+            $(".spinner-border").remove();
+            return false;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/portfolio/<str:portfolio>/<str:stock>/",
+            data: {
+                "csrfmiddlewaretoken": "{{ csrf_token }}",
+                change_graph_data_intraday:'',
+                stock: stock,
+                day: day,
+            },
+            success: function(data) {
+
+                if ("not_supported" in data) {
+                    update_messages(data.messages);
+                    $(".spinner-border").remove();
+                    return
+                }
+                intraday_line_chart.series[0].update({
+                  {#categories: data.stock_id,#}
+                  data: data.stock_candle
+                }, false);
+                intraday_line_chart.redraw();
+
+                intraday_line_chart.xAxis[0].setExtremes(null,null);
+
+                intraday_candlestink_chart.series[0].update({
+                    data: data.stock_candle,
+                }, false);
+                intraday_candlestink_chart.redraw();
+                intraday_candlestink_chart.xAxis[0].setExtremes(null,null);
+
+                $(".spinner-border").remove();
+            }
+        })
+    })
+
+
+    $('#btn_change_dates_compare_left_interday').unbind('click').click(function() {
+
+        $(this).prepend(`<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>`);
+
+        var stock = window.location.href.split('/').slice(-2)[0]
+        var startdate = $('#id_startdate_compare_left_interday').val()
+        var enddate = $('#id_enddate_compare_left_interday').val()
+
+        if (startdate === "" && enddate === ""){
+            alert("Error! Set \"Start date\" and \"End date\".");
+            $(".spinner-border").remove();
+            return false;
+
+        } else if (startdate === ""){
+            alert("Error! Set \"Start date\".");
+            $(".spinner-border").remove();
+            return false;
+
+        } else if (enddate === ""){
+            alert("Error! Set \"End date\".");
+            $(".spinner-border").remove();
+            return false;
+        }
+
+        start_date = new Date(startdate);
+        end_date = new Date(enddate);
+        today_date = new Date();
+
+        if (start_date > end_date){
+            alert("Error! \"Start date\" can not be bigger than \"End date\".");
+            $(".spinner-border").remove();
+            return false;
+        }
+
+        if ((start_date > today_date) || (end_date > today_date)){
+            alert("Error! Dates can not be in future.");
+            $(".spinner-border").remove();
+            return false;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/portfolio/<str:portfolio>/<str:stock>/",
+            data: {
+                "csrfmiddlewaretoken": "{{ csrf_token }}",
+                change_graph_data:'',
+                stock: stock,
+                startdate: startdate,
+                enddate: enddate,
+            },
+            success: function(data) {
+
+                line_chart.series[0].update({
+                    data: data.line_chart_data
+                }, false);
+                line_chart.redraw();
+
+                candlestink_chart.series[0].update({
+                    data: data.stock_candle,
+                }, false);
+                candlestink_chart.redraw();
+                line_chart.yAxis[0].setExtremes(data.line_chart_axisY_min,data.line_chart_axisY_max);
+                line_chart.xAxis[0].setExtremes(null,null);
+                candlestink_chart.xAxis[0].setExtremes(null,null);
+
+                $(".spinner-border").remove();
+            }
+        })
+    })
+
+
+    $('#btn_change_dates_compare_right_interday').unbind('click').click(function () {
+
+        $("#btn_change_dates_compare_right_interday").prepend(`<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>`);
+
+        var searchbar_val = $('#id_searchbar_compare_right_interday').val()
+        var startdate = $('#id_startdate_compare_right_interday').val()
+        var enddate = $('#id_enddate_compare_right_interday').val()
+
+        if (startdate === "" && enddate === ""){
+            alert("Error! Set \"Start date\" and \"End date\".");
+            $(".spinner-border").remove();
+            return false;
+
+        } else if (startdate === ""){
+            alert("Error! Set \"Start date\".");
+            $(".spinner-border").remove();
+            return false;
+
+        } else if (enddate === ""){
+            alert("Error! Set \"End date\".");
+            $(".spinner-border").remove();
+            return false;
+
+        } else if (searchbar_val === ""){
+            alert("Error! Set \"symbol\".");
+            $(".spinner-border").remove();
+            return false;
+        }
+
+        start_date = new Date(startdate);
+        end_date = new Date(enddate);
+        today_date = new Date();
+
+        if (start_date > end_date){
+            alert("Error! \"Start date\" can not be bigger than \"End date\".");
+            $(".spinner-border").remove();
+            return false;
+        }
+
+        if ((start_date > today_date) || (end_date > today_date)){
+            alert("Error! Dates can not be in future.");
+            $(".spinner-border").remove();
+            return false;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/portfolio/<str:portfolio>/<str:stock>/",
+            data: {
+                "csrfmiddlewaretoken": "{{ csrf_token }}",
+                change_graph_data: '',
+                compare_graph_left: '',
+                stock: $('#id_searchbar_compare_right_interday').val(),
+                startdate: startdate,
+                enddate: enddate,
+            },
+            success: function (data) {
+
+
+                compare_line_chart.series[0].update({
+                   name: data.symbol+' price',
+                   data: data.line_chart_data
+                }, false);
+                compare_line_chart.redraw();
+
+                compare_candlestink_chart.series[0].update({
+                    name: data.symbol+' price',
+                    data: data.stock_candle,
+                }, false);
+                compare_candlestink_chart.redraw();
+
+                compare_line_chart.setTitle({ text: data.symbol + ' (' + data.company_name + ')'});
+                compare_candlestink_chart.setTitle({ text: data.symbol + ' (' + data.company_name + ')'});
+
+                compare_line_chart.yAxis[0].setExtremes(data.line_chart_axisY_min,data.line_chart_axisY_max);
+                compare_line_chart.xAxis[0].setExtremes(null,null);
+                compare_candlestink_chart.xAxis[0].setExtremes(null,null);
+
+                $('#id_searchbar_compare_right_interday').val('')
+                {#update_messages(data.messages);#}
+                $(".spinner-border").remove();
+            }
+        })
+    });
+    $('#btn_change_dates_compare_right_intraday').unbind('click').click(function () {
+
+        $("#btn_change_dates_compare_right_intraday").prepend(`<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>`);
+
+        var stock = $('#id_searchbar_compare_right_intraday').val()
+        var day = $('#id_day_compare_right_intraday').val()
+
+        if (day === ""){
+            alert("Error! Set \"day\".");
+            $(".spinner-border").remove();
+            return false;
+
+        } else if (stock === ""){
+            alert("Error! Set \"symbol\".");
+            $(".spinner-border").remove();
+            return false;
+        }
+
+        day_date = new Date(day);
+        today_date = new Date();
+
+        if ((day_date > today_date)){
+            alert("Error! Date can not be in future.");
+            $(".spinner-border").remove();
+            return false;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/portfolio/<str:portfolio>/<str:stock>/",
+            data: {
+                "csrfmiddlewaretoken": "{{ csrf_token }}",
+                change_graph_data_intraday:'',
+                stock: stock,
+                day: day,
+            },
+            success: function(data) {
+
+                if ("not_supported" in data) {
+                    update_messages(data.messages);
+                    $(".spinner-border").remove();
+                    return
+                }
+
+
+                compare_intraday_line_chart.series[0].update({
+                    name: data.symbol+' price',
+                    data: data.stock_candle
+                }, false);
+                compare_intraday_line_chart.redraw();
+                compare_intraday_line_chart.xAxis[0].setExtremes(null,null);
+                compare_intraday_line_chart.setTitle({ text: data.symbol + ' (' + data.company_name + ')'});
+                compare_intraday_line_chart.setTitle({ text: data.symbol + ' (' + data.company_name + ')'});
+
+                compare_intraday_candlestink_chart.series[0].update({
+                    name: data.symbol+' price',
+                    data: data.stock_candle,
+                }, false);
+                compare_intraday_candlestink_chart.redraw();
+                compare_intraday_candlestink_chart.xAxis[0].setExtremes(null,null);
+                compare_intraday_candlestink_chart.setTitle({ text: data.symbol + ' (' + data.company_name + ')'});
+                compare_intraday_candlestink_chart.setTitle({ text: data.symbol + ' (' + data.company_name + ')'});
+
+                $(".spinner-border").remove();
+            }
+        })
+    });
+
+
+    $('#btn_prediction').unbind('click').click(function () {
+
+        $("#btn_prediction").prepend(`<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>`);
+
+        var prediction_type_val = $('#intrument_prediction_options').val()
+
+        var prediction = $('#id_prediction').val()
+        var id_prediction_custom_length = $('#id_prediction_custom_length').val()
+
+
+        {#if (prediction === ""){#}
+        {#    alert("Error! Set \"Start date\".");#}
+        {#    $(".spinner-border").remove();#}
+        {#    return false;#}
+        {##}
+        {# } else if (prediction === "0"){#}
+        {#    alert("Error! Prediction cant be 0.");#}
+        {#    $(".spinner-border").remove();#}
+        {#    return false;#}
+        {# }#}
+
+        $.ajax({
+            type: "POST",
+            url: "/portfolio/<str:portfolio>/<str:stock>/",
+            data: {
+                "csrfmiddlewaretoken": "{{ csrf_token }}",
+                get_prediction: '',
+                prediction: $('#id_prediction').val(),
+                custom_length: $('#id_prediction_custom_length').val(),
+                prediction_type: prediction_type_val
+            },
+            success: function (data) {
+
+                if ("prediction_zero_days" in data){
+                    update_messages(data.messages);
+                    $(".spinner-border").remove();
+                    return false
+                }
+                if ("prediction_negative" in data){
+                    update_messages(data.messages);
+                    $(".spinner-border").remove();
+                    return false
+                }
+                if ("custom_length_zero" in data){
+                    update_messages(data.messages);
+                    $(".spinner-border").remove();
+                    return false
+                }
+                if ("custom_length_negative" in data){
+                    update_messages(data.messages);
+                    $(".spinner-border").remove();
+                    return false
+                }
+
+                if (data.prediction === false){
+                    update_messages(data.messages);
+                    $(".spinner-border").remove();
+                    return false
+                }
+
+                line_chart.addSeries({
+                  {#categories: data.stock_id,#}
+                    name: 'Date',
+                    marker: {
+                        enabled: true,
+                        radius: 3
+                    },
+                  data: data.prediction
+                }, false);
+                line_chart.redraw();
+
+                line_chart.xAxis[0].setExtremes(null,null);
+
+                $('#btn_prediction').prop("disabled",true);
+                $('#btn_delete_prediction').prop("disabled",false);
+                update_messages(data.messages);
+                {##}
+                {#candlestink_chart.series[0].update({#}
+                {#    data: data.stock_candle,#}
+                {# }, false);#}
+                {#candlestink_chart.redraw();#}
+
+                {#update_messages(data.messages);#}
+                $(".spinner-border").remove();
+            }
+        })
+    });
+
+    $('#btn_prediction_intraday').unbind('click').click(function () {
+
+        $("#btn_prediction_intraday").prepend(`<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>`);
+
+        var prediction = $('#btn_prediction_intraday').val()
+        var id_prediction_custom_length = $('#id_prediction_custom_length_intraday').val()
+
+
+        {#if (prediction === ""){#}
+        {#    alert("Error! Set \"Start date\".");#}
+        {#    $(".spinner-border").remove();#}
+        {#    return false;#}
+        {##}
+        {# } else if (prediction === "0"){#}
+        {#    alert("Error! Prediction cant be 0.");#}
+        {#    $(".spinner-border").remove();#}
+        {#    return false;#}
+        {# }#}
+
+        $.ajax({
+            type: "POST",
+            url: "/portfolio/<str:portfolio>/<str:stock>/",
+            data: {
+                "csrfmiddlewaretoken": "{{ csrf_token }}",
+                get_prediction_intraday: '',
+                prediction: $('#id_prediction_intraday').val(),
+                custom_length: $('#id_prediction_custom_length_intraday').val(),
+            },
+            success: function (data) {
+
+               if (data.prediction === false){
+
+                    update_messages(data.messages);
+                    $(".spinner-border").remove();
+                    return false
+                }
+
+                intraday_line_chart.addSeries({
+                  {#categories: data.stock_id,#}
+                    name: 'Date',
+                    marker: {
+                        enabled: true,
+                        radius: 3
+                    },
+                  data: data.prediction
+                }, false);
+                intraday_line_chart.redraw();
+
+                intraday_line_chart.xAxis[0].setExtremes(null,null);
+
+                $('#btn_prediction_intraday').prop("disabled",true);
+                $('#btn_delete_prediction_intraday').prop("disabled",false);
+                update_messages(data.messages);
+                {##}
+                {#candlestink_chart.series[0].update({#}
+                {#    data: data.stock_candle,#}
+                {# }, false);#}
+                {#candlestink_chart.redraw();#}
+
+                {#update_messages(data.messages);#}
+                $(".spinner-border").remove();
+            }
+        })
+    });
+
+    $('#btn_delete_prediction').unbind('click').click(function () {
+
+        {#line_chart.series.splice(1, 1);#}
+        line_chart.series[1].remove()
+        line_chart.redraw();
+        line_chart.xAxis[0].setExtremes(null, null);
+
+        $.ajax({
+            type: "POST",
+            url: "/portfolio/<str:portfolio>/<str:stock>/",
+            data: {
+                "csrfmiddlewaretoken": "{{ csrf_token }}",
+                reset_prediction: '',
+            },
+            success: function (data) {
+                $('#btn_prediction').prop("disabled",false);
+                $('#btn_delete_prediction').prop("disabled",true);
+            }
+        })
+    });
+
+    $('#btn_delete_prediction_intraday').unbind('click').click(function () {
+
+        {#line_chart.series.splice(1, 1);#}
+        intraday_line_chart.series[1].remove()
+        intraday_line_chart.redraw();
+        intraday_line_chart.xAxis[0].setExtremes(null, null);
+
+        $.ajax({
+            type: "POST",
+            url: "/portfolio/<str:portfolio>/<str:stock>/",
+            data: {
+                "csrfmiddlewaretoken": "{{ csrf_token }}",
+                reset_prediction: '',
+            },
+            success: function (data) {
+                $('#btn_prediction_intraday').prop("disabled",false);
+                $('#btn_delete_prediction_intraday').prop("disabled",true);
+            }
+        })
+    });
+
+
+    {##################################################################################################################}
+    {#############################################                   ##################################################}
+    {#############################################     FULLSCREEN    ##################################################}
+    {#############################################                   ##################################################}
+    {##################################################################################################################}
+
+    function function2()
+    {
+        line_chart.reflow();
+        candlestink_chart.reflow();
+        intraday_line_chart.reflow();
+        intraday_candlestink_chart.reflow();
+        compare_intraday_line_chart.reflow();
+        compare_intraday_candlestink_chart.reflow();
+    }
+
+    $("#sliding_cards").animate({"height":"500px"}, "slow", function() {
+        line_chart.reflow();
+        candlestink_chart.reflow();
+        intraday_line_chart.reflow();
+        intraday_candlestink_chart.reflow();
+        compare_intraday_line_chart.reflow();
+        compare_intraday_candlestink_chart.reflow();
+    });
+
+    function f3(){
+        var left = $('#details_card').left;
+        $("#details_card").css({left:left}).animate({"left":"-400px"}, "slow", function() {
+            // Animation complete.
+            $("#details_card").hide();
+        });
+
+        var right = $('#navigation_card').right;
+        $("#navigation_card").css({right:right}).animate({"right":"-400px"}, "slow", function() {
+            // Animation complete.
+            $("#navigation_card").hide();
+        });
+    }
+
+    function f4() {
+        $("#sliding_cards").animate({"height":"750px"}, "slow", function() {
+            // Animation complete.
+            function2()
+        });
+    }
+
+    function move_and_hide(){
+        $.when(f3()).then(f4())
+    }
+
+    $(function(){
+        $("#show_fullscreen").click(function () {
+            move_and_hide()
+            $("#fullscreen_panel").removeClass("d-none");
+        });
+     });
+
+    $('a[data-toggle="list"]').on('shown.bs.tab', function (e) {
+        line_chart.reflow();
+        candlestink_chart.reflow();
+        compare_line_chart.reflow();
+        compare_candlestink_chart.reflow();
+        intraday_line_chart.reflow();
+        intraday_candlestink_chart.reflow();
+        compare_intraday_line_chart.reflow();
+        compare_intraday_candlestink_chart.reflow();
+    });
+
+    function move_and_show(){
+        var right = $('#navigation_card').right;
+        $("#navigation_card").css({right:right}).animate({"right":"+0px"}, "slow", function() {
+            // Animation complete.
+            $("#navigation_card").show();
+        });
+
+        var right = $('#details_card').right;
+        $("#details_card").css({right:right}).animate({"left":"0px"}, "slow", function() {
+            // Animation complete.
+            $("#details_card").show();
+        });
+
+        $("#sliding_cards").animate({"height":"500px"}, "slow", function() {
+            line_chart.reflow();
+            candlestink_chart.reflow();
+            intraday_line_chart.reflow();
+            intraday_candlestink_chart.reflow();
+            compare_intraday_line_chart.reflow();
+            compare_intraday_candlestink_chart.reflow();
+        });
+    }
+
+    $(function(){
+        $("#tools_back").click(function () {
+            {#var left = $('#details_card').left;#}
+            {#$("#details_card").css({left:left}).animate({"left":"-300px"}, "slow");#}
+
+            $.when(move_and_show()).then(function2());
+            $("#fullscreen_panel").addClass("d-none");
+
+            {#$("#details_card").hide();#}
+        });
+    });
+
+    {##################################################################################################################}
+    {#############################################                   ##################################################}
+    {#############################################      Compare      ##################################################}
+    {#############################################                   ##################################################}
+    {##################################################################################################################}
+    function compare_hide_side_panels(){
+        var left = $('#details_card').left;
+        var right = $('#navigation_card').right;
+        $.when(
+            $("#details_card").css({left:left}).animate({"left":"-400px"}, "slow", function() {
+                // Animation complete.
+                $("#details_card").hide();
+            }).promise(),
+
+            $("#navigation_card").css({right:right}).animate({"right":"-400px"}, "slow", function() {
+                // Animation complete.
+                $("#navigation_card").hide();
+            }).promise(),
+
+            $('.compare-graph.card.d-none').removeClass('d-none'),
+            $('#compare_panel').removeClass('d-none'),
+            $('#compare_panel_graphs_details').removeClass('d-none'),
+
+
+
+            $('#id_startdate').prop('disabled', true),
+            $('#id_enddate').prop('disabled', true),
+            $('#btn_change_dates').prop('disabled', true),
+
+
+
+        ).done(function (){
+            line_chart.reflow();
+            candlestink_chart.reflow();
+            compare_line_chart.reflow();
+            compare_candlestink_chart.reflow();
+            intraday_line_chart.reflow();
+            intraday_candlestink_chart.reflow();
+            compare_intraday_line_chart.reflow();
+            compare_intraday_candlestink_chart.reflow();
+        })
+    }
+
+    function compare_set_up_graphs(){
+    }
+
+    function show_two_graphs() {
+        $.when(compare_hide_side_panels()).then(compare_set_up_graphs());
+
+    }
+
+    $("#stock_compare").click(function () {
+        show_two_graphs()
+    });
+
+
+
+    $("#compare_back").click(function () {
+        $('#compare_panel').addClass('d-none');
+        $('#compare_panel_graphs_details').addClass('d-none');
+        $('.compare-graph.card').addClass('d-none');
+
+        $('#id_startdate').prop('disabled', false);
+        $('#id_enddate').prop('disabled', false);
+        $('#btn_change_dates').prop('disabled', false);
+
+        $.when(move_and_show()).then(function2());
+    });
+
+    {##################################################################################################################}
+    {#############################################                   ##################################################}
+    {#############################################       GRAPHS      ##################################################}
+    {#############################################                   ##################################################}
+    {##################################################################################################################}
+
+    const candlestink_chart = Highcharts.stockChart('main_container_candlestink_interday', {
+
+        width: null,
+        height: null,
+        title: {
+            text: '{{ data.symbol }} ({{ data.company_name }})'
+        },
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                         '<td style="padding:0"><b>{point.y:.1f} {{data.currency}}</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+        series: [{
+            name: '{{ data.symbol }} price',
+            type: 'candlestick',
+            data: {{ data.stock_candle|safe }},
+            dataGrouping: {
+                units: [
+                    [
+                        'week', // unit name
+                            [1] // allowed multiples
+                    ], [
+                        'month',
+                        [1, 2, 3, 4, 6]
+                    ]
+                ]
+            }
+        }]
+
+    });
+
+    const line_chart = Highcharts.stockChart('main_container_line_interday', {
+        chart: {
+            type: 'line',
+            // Edit chart spacing
+
+            // Explicitly tell the width and height of a chart
+            width: null,
+            height: null,
+        },
+        rangeSelector: {
+            selected: 1
+        },
+        title: {
+            text: '{{ data.symbol }} ({{ data.company_name }})'
+        },
+        subtitle: {
+            text: ''
+        },
+        {#xAxis: {#}
+        {#    type: 'datatime',#}
+        {#    categories: {{ data.stock_id|safe  }},#}
+        {#    crosshair: true#}
+        {# },#}
+        yAxis: {
+            min: {{ data.line_chart_axisY_min|safe }},
+            max: {{ data.line_chart_axisY_max|safe }},
+            title: {
+                text: 'Price'
+            }
+        },
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                         '<td style="padding:0"><b>{point.y:.1f} {{data.currency}}</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+        plotOptions: {
+            column: {
+                pointPadding: 0.2,
+                borderWidth: 0
+            }
+        },
+        series: [{
+            name: '{{ data.symbol }} price',
+            marker: {
+                enabled: true,
+                radius: 3
+            },
+            data: {{ data.line_chart_data|safe }},
+        }],
+        responsive: {
+            rules: [{
+                condition: {
+                    maxWidth: 1500
+                },
+            }]
+        }
+    });
+
+    const compare_candlestink_chart = Highcharts.stockChart('main_compare_container_candlestink_interday', {
+
+        width: null,
+        height: null,
+        title: {
+            text: '{{ data.symbol }} ({{ data.company_name }})'
+        },
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                         '<td style="padding:0"><b>{point.y:.1f} {{data.currency}}</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+        series: [{
+            type: 'candlestick',
+            name: '{{ data.symbol }} price',
+            data: {{ data.stock_candle|safe }},
+            dataGrouping: {
+                units: [
+                    [
+                        'week', // unit name
+                            [1] // allowed multiples
+                    ], [
+                        'month',
+                        [1, 2, 3, 4, 6]
+                    ]
+                ]
+            }
+        }]
+
+    });
+
+    const compare_line_chart =  Highcharts.stockChart('main_compare_container_line_interday', {
+        chart: {
+            type: 'line',
+            // Edit chart spacing
+
+            // Explicitly tell the width and height of a chart
+            width: null,
+            height: null,
+        },
+        rangeSelector: {
+            selected: 1
+        },
+        title: {
+            text: '{{ data.symbol }} ({{ data.company_name }})'
+        },
+        subtitle: {
+            text: ''
+        },
+        {#xAxis: {#}
+        {#    categories: {{ data.stock_id|safe  }},#}
+        {#    crosshair: true#}
+        {# },#}
+        yAxis: {
+            min: {{ data.line_chart_axisY_min|safe }},
+            max: {{ data.line_chart_axisY_max|safe }},
+            title: {
+                text: 'Price'
+            }
+        },
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                         '<td style="padding:0"><b>{point.y:.1f} {{data.currency}}</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+        plotOptions: {
+            column: {
+                pointPadding: 0.2,
+                borderWidth: 0
+            }
+        },
+        series: [{
+            name: '{{ data.symbol }} price',
+            marker: {
+                enabled: true,
+                radius: 3
+            },
+            data: {{ data.line_chart_data|safe }},
+        }],
+        responsive: {
+            rules: [{
+                condition: {
+                    maxWidth: 1500
+                },
+            }]
+        }
+    });
+
+    const intraday_line_chart = Highcharts.stockChart('main_container_line_intraday', {
+
+
+        title: {
+            text: '{{ data.symbol }} stock price by minute'
+        },
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                         '<td style="padding:0"><b>{point.y:.1f} {{data.currency}}</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+        subtitle: {
+            text: 'Using ordinal X axis'
+        },
+
+        xAxis: {
+            gapGridLineWidth: 0
+        },
+
+        rangeSelector: {
+            buttons: [{
+                type: 'hour',
+                count: 1,
+                text: '1h'
+            }, {
+                type: 'day',
+                count: 1,
+                text: '1D'
+            }, {
+                type: 'all',
+                count: 1,
+                text: 'All'
+            }],
+            selected: 1,
+            inputEnabled: false
+        },
+
+        series: [{
+            name: '{{ data.symbol }} price',
+            type: 'area',
+            data: [[0000000000000,0.0,0.0,0.0,0.0]],
+            gapSize: 5,
+            tooltip: {
+                valueDecimals: 2
+            },
+            fillColor: {
+                linearGradient: {
+                    x1: 0,
+                    y1: 0,
+                    x2: 0,
+                    y2: 1
+                },
+                stops: [
+                    [0, Highcharts.getOptions().colors[0]],
+                    [1, Highcharts.color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+                ]
+            },
+            threshold: null
+        }]
+    });
+    const compare_intraday_line_chart = Highcharts.stockChart('main_compare_container_line_intraday', {
+
+
+        title: {
+            text: '{{ data.symbol }} stock price by minute'
+        },
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                         '<td style="padding:0"><b>{point.y:.1f} {{data.currency}}</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+        subtitle: {
+            text: 'Using ordinal X axis'
+        },
+
+        xAxis: {
+            gapGridLineWidth: 0
+        },
+
+        rangeSelector: {
+            buttons: [{
+                type: 'hour',
+                count: 1,
+                text: '1h'
+            }, {
+                type: 'day',
+                count: 1,
+                text: '1D'
+            }, {
+                type: 'all',
+                count: 1,
+                text: 'All'
+            }],
+            selected: 1,
+            inputEnabled: false
+        },
+
+        series: [{
+            name: '{{ data.symbol }} price',
+            type: 'area',
+            data: [[0000000000000,0.0,0.0,0.0,0.0]],
+            gapSize: 5,
+            tooltip: {
+                valueDecimals: 2
+            },
+            fillColor: {
+                linearGradient: {
+                    x1: 0,
+                    y1: 0,
+                    x2: 0,
+                    y2: 1
+                },
+                stops: [
+                    [0, Highcharts.getOptions().colors[0]],
+                    [1, Highcharts.color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+                ]
+            },
+            threshold: null
+        }]
+    });
+
+
+        // create the chart
+    const intraday_candlestink_chart = Highcharts.stockChart('main_container_candlestink_intraday', {
+
+
+        title: {
+            text: '{{ data.symbol }} stock price by minute'
+        },
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                         '<td style="padding:0"><b>{point.y:.1f} {{data.currency}}</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+        rangeSelector: {
+            buttons: [{
+                type: 'hour',
+                count: 1,
+                text: '1h'
+            }, {
+                type: 'day',
+                count: 1,
+                text: '1D'
+            }, {
+                type: 'all',
+                count: 1,
+                text: 'All'
+            }],
+            selected: 1,
+            inputEnabled: false
+        },
+
+        series: [{
+            name: '{{ data.symbol }} price',
+            type: 'candlestick',
+            data: [[0000000000000,0.0,0.0,0.0,0.0]],
+            tooltip: {
+                valueDecimals: 2
+            }
+        }]
+    });
+
+        // create the chart
+    const compare_intraday_candlestink_chart = Highcharts.stockChart('main_compare_container_candlestink_intraday', {
+
+
+        title: {
+            text: '{{ data.symbol }} stock price by minute'
+        },
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                         '<td style="padding:0"><b>{point.y:.1f} {{data.currency}}</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+        rangeSelector: {
+            buttons: [{
+                type: 'hour',
+                count: 1,
+                text: '1h'
+            }, {
+                type: 'day',
+                count: 1,
+                text: '1D'
+            }, {
+                type: 'all',
+                count: 1,
+                text: 'All'
+            }],
+            selected: 1,
+            inputEnabled: false
+        },
+
+        series: [{
+            name: '{{ data.symbol }} price',
+            type: 'candlestick',
+            data: [[0000000000000,0.0,0.0,0.0,0.0]],
+            tooltip: {
+                valueDecimals: 2
+            }
+        }]
+    });
+
+
+    {# inspired code #}
+    {# Source: https://stackoverflow.com/questions/2155453/jquery-toggle-text #}
+    {# Author: JxAxMxIxN #}
+    {# Author profile: https://stackoverflow.com/users/1840601/jxaxmxixn #}
+    {# answered Sep 16 '16 at 7:28 #}
+    {# edited Feb 9 '17 at 22:39   #}
+    $.fn.extend({
+        toggleText: function(a, b){
+            return this.text(this.text() === b ? a : b);
+        }
+    });
+    {# inspired code END #}
+
+    function sleep(ms) {
+        return new Promise(res => setTimeout(res, ms));
+    }
+    var timeoutss=[]
+    async function update_messages(messages){
+        while (timeoutss.length !== 0) {
+            await sleep(1000);
+        }
+        $("#div_messages").empty();
+        $.each(messages, function (i, m) {
+            $("#div_messages").append("<div class='alert alert-"+m.level+"''>"+m.message+"</div>");
+        })
+
+        var id = setTimeout(function(){
+           $("#div_messages").addClass('fade-out');
+           timeoutss.pop();
+         }, 7000);
+
+        timeoutss.push(id)
+
+        var id2 = setTimeout(function(){
+            $("#div_messages").removeClass('fade-out');
+            $("#div_messages").removeClass('d-none');
+            $("#div_messages").empty();
+
+            timeoutss.pop();
+         }, 10000);
+         timeoutss.push(id2)
+    }
+    {##################################################################################################################}
+    {#############################################                   ##################################################}
+    {#############################################  DOCUMENT READY   ##################################################}
+    {#############################################                   ##################################################}
+    {##################################################################################################################}
+
+    $(document).ready(function() {
+        $('#btn_prediction').prop("disabled",false);
+        $('#btn_delete_prediction').prop("disabled",true);
+
+        $('#btn_prediction_intraday').prop("disabled",false);
+        $('#btn_delete_prediction_intraday').prop("disabled",true);
+
+        $('#id_ownedstocks').val('{{ data.ownedstock_count }}');
+        $('#id_balance').val('{{ data.ownedstock_balance }}');
+
+        $('#btn_historical_prices').val('');
+        $('#id_type').change(function () {
+            var btn_buysell = $("#btn_buysell")
+
+            $(btn_buysell).toggleClass('btn-success');
+            $(btn_buysell).toggleClass('btn-danger');
+            $(btn_buysell).toggleText('Buy', 'Sell');
+          if (parseInt($('#id_type').val()) === 2)
+          {
+              var id_quantity = $('#id_quantity').val()
+              var id_ownedstocks = $("#id_ownedstocks").val()
+
+              if (parseInt($(id_quantity).val()) > parseInt($(id_ownedstocks).val())) {
+                  $(id_quantity).val($("#id_ownedstocks").val());
+                  checkMultiplication(parseFloat($(id_quantity).val()), parseFloat($("#id_price").val()))
+                  return
+              }
+          }
+
+        })
+
+        $(function() {
+            $( "#id_date" ).datetimepicker({
+            dateFormat: "yy-mm-dd",
+            beforeShowDay: $.datepicker.noWeekends,
+                timeFormat: 'HH:mm:ss',
+                showSecond: false,
+                showMillisec: false,
+                showMicrosec: false,
+                showTimezone: false
+            });
+        });
+
+        $(function() {
+            $( "#id_startdate" ).datetimepicker({
+            beforeShowDay: $.datepicker.noWeekends,
+            dateFormat: "yy-mm-dd",
+            timeFormat: '',
+                showSecond: false,
+                showMillisec: false,
+                showMicrosec: false,
+                showTimezone: false
+            });
+        });
+
+        $(function() {
+            $( "#id_enddate" ).datetimepicker({
+            beforeShowDay: $.datepicker.noWeekends,
+            dateFormat: "yy-mm-dd",
+            timeFormat: '',
+                showSecond: false,
+                showMillisec: false,
+                showMicrosec: false,
+                showTimezone: false,
+            });
+        });
+
+        $(function() {
+            $( "#id_startdate_compare_left_interday" ).datetimepicker({
+            beforeShowDay: $.datepicker.noWeekends,
+            dateFormat: "yy-mm-dd",
+            timeFormat: '',
+                showSecond: false,
+                showMillisec: false,
+                showMicrosec: false,
+                showTimezone: false
+            });
+        });
+
+        $(function() {
+            $( "#id_enddate_compare_left_interday" ).datetimepicker({
+            beforeShowDay: $.datepicker.noWeekends,
+            dateFormat: "yy-mm-dd",
+            timeFormat: '',
+                showSecond: false,
+                showMillisec: false,
+                showMicrosec: false,
+                showTimezone: false,
+            });
+        });
+        $(function() {
+            $( "#id_day_compare_left_intraday" ).datetimepicker({
+            beforeShowDay: $.datepicker.noWeekends,
+            dateFormat: "yy-mm-dd",
+            timeFormat: '',
+                showSecond: false,
+                showMillisec: false,
+                showMicrosec: false,
+                showTimezone: false,
+            });
+        });
+
+        $(function() {
+            $( "#id_startdate_compare_right_interday" ).datetimepicker({
+            beforeShowDay: $.datepicker.noWeekends,
+            dateFormat: "yy-mm-dd",
+            timeFormat: '',
+                showSecond: false,
+                showMillisec: false,
+                showMicrosec: false,
+                showTimezone: false
+            });
+        });
+
+        $(function() {
+            $( "#id_enddate_compare_right_interday" ).datetimepicker({
+            beforeShowDay: $.datepicker.noWeekends,
+            dateFormat: "yy-mm-dd",
+            timeFormat: '',
+                showSecond: false,
+                showMillisec: false,
+                showMicrosec: false,
+                showTimezone: false,
+            });
+        });
+
+        $(function() {
+            $( "#btn_change_dates_intraday_main" ).datetimepicker({
+            beforeShowDay: $.datepicker.noWeekends,
+            dateFormat: "yy-mm-dd",
+            timeFormat: '',
+                showSecond: false,
+                showMillisec: false,
+                showMicrosec: false,
+                showTimezone: false,
+            });
+        });
+
+        $(function() {
+            $( "#id_intraday_compare_left" ).datetimepicker({
+            beforeShowDay: $.datepicker.noWeekends,
+            dateFormat: "yy-mm-dd",
+            timeFormat: '',
+                showSecond: false,
+                showMillisec: false,
+                showMicrosec: false,
+                showTimezone: false,
+            });
+        });
+
+        $(function() {
+            $( "#id_day_compare_right_intraday" ).datetimepicker({
+            beforeShowDay: $.datepicker.noWeekends,
+            dateFormat: "yy-mm-dd",
+            timeFormat: '',
+                showSecond: false,
+                showMillisec: false,
+                showMicrosec: false,
+                showTimezone: false,
+            });
+        });
+
+
+        var urlParams = new URLSearchParams(window.location.search)
+        if (urlParams.get('startdate') !== null &&
+            urlParams.get('enddate') !== null)
+        {
+            $('#id_startdate').val(urlParams.get('startdate'))
+            $('#id_enddate').val(urlParams.get('enddate'))
+        }
+        {#update_messages({{data.messages|safe}})#}
+    })
+
+    {##################################################################################################################}
+    {#############################################                   ##################################################}
+    {#############################################      BUY/SELL     ##################################################}
+    {#############################################                   ##################################################}
+    {##################################################################################################################}
+
+    $('#btn_buysell').unbind('click').click(function() {
+
+        $("#btn_buysell").prepend(`<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>`);
+
+        var temp_type = parseInt($('#id_type').val());
+
+        var temp_date = $('#id_date').val();
+
+        var temp_price = parseFloat($('#id_price').val());
+        var temp_quantity = parseInt($('#id_quantity').val());
+        var temp_id_ownedstocks = parseInt($("#id_ownedstocks").val());
+
+        if(temp_type===''  ||
+           {#temp_date===''  || #}
+           temp_price==='' ||
+           temp_quantity===''
+        ){
+            alert('All fields are required!(Date, Price, Quantity)');
+            $(".spinner-border").remove();
+            return
+        }
+
+        if(temp_price===0.0 ||
+           temp_quantity===0
+        ){
+            alert('Price or quantity is 0!');
+            $(".spinner-border").remove();
+            return
+        }
+
+        if (temp_type==='2'){
+            if (temp_quantity > temp_id_ownedstocks) {
+                  $('#id_quantity').val($("#id_ownedstocks").val());
+                  window.alert('You can not sell more shares than you have. You have ' + $("#id_ownedstocks").val() + ' shares.');
+                  $(".spinner-border").remove();
+                  return
+            }
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/portfolio/<str:portfolio>/<str:stock>/",
+            data: {
+                "csrfmiddlewaretoken": "{{ csrf_token }}",
+                buy_or_sell:'',
+                type: $('#id_type').val(),
+                date: $('#id_date').val(),
+                price: $('#id_price').val(),
+                quantity: $('#id_quantity').val(),
+                stock: window.location.href.split('/').slice(-2)[0],
+                portfolio: window.location.href.split('/').slice(-3)[0]
+
+            },
+            success: function(data) {
+
+                if (!("error" in data)) {
+                    $('#id_ownedstocks').val(data.ownedstock_count);
+                    $('#id_balance').val(data.ownedstock_balance);
+                }
+                update_messages(data.messages);
+                $('#form_buysell')[0].reset();
+                var btn_buysell = $("#btn_buysell")
+                $(btn_buysell).removeClass('btn-danger');
+                $(btn_buysell).addClass('btn-success');
+                $(btn_buysell).text('Buy')
+                $(".spinner-border").remove();
+            }
+        })
+    });
+
+    {##################################################################################################################}
+    {#############################################                   ##################################################}
+    {#############################################     TAP-PANE      ##################################################}
+    {#############################################                   ##################################################}
+    {##################################################################################################################}
+
+    $('.list-group-item.list-group-item-action.compare-first-horizontal-navigation').on('click', function() {
+        var tab_object = $(this);
+
+        $(".list-group-item.list-group-item-action.custom-horizontal-navigation.active").removeClass('active');
+        $(".list-group-item.list-group-item-action.custom-vertical-navigation.active").removeClass('active');
+
+
+        var ref_this = $(".list-group-item.list-group-item-action.custom-horizontal-navigation")
+        var ref_this2 = $(".list-group-item.list-group-item-action.custom-vertical-navigation")
+
+        if (tab_object[0].innerHTML === 'Line'){
+            $(ref_this[0]).addClass('active');
+            $(ref_this2[0]).addClass('active');
+        } else if (tab_object[0].innerHTML === 'Candlestick'){
+            $(ref_this[1]).addClass('active');
+            $(ref_this2[1]).addClass('active');
+        }
+    })
+
+    $('.list-group-item.list-group-item-action.custom-vertical-navigation').on('click', function() {
+        var tab_object = $(this);
+
+        $(".list-group-item.list-group-item-action.custom-horizontal-navigation.active").removeClass('active');
+        $(".list-group-item.list-group-item-action.compare-first-horizontal-navigation.active").removeClass('active');
+
+
+        var ref_this = $(".list-group-item.list-group-item-action.custom-horizontal-navigation")
+        var ref_this2 = $(".list-group-item.list-group-item-action.compare-first-horizontal-navigation")
+
+        if (tab_object[0].innerHTML === 'Line'){
+            $(ref_this[0]).addClass('active');
+            $(ref_this2[0]).addClass('active');
+        } else if (tab_object[0].innerHTML === 'Candlestick'){
+            $(ref_this[1]).addClass('active');
+            $(ref_this2[1]).addClass('active');
+        }
+    })
+
+
+    $('.list-group-item.custom-horizontal-navigation').on('click', function() {
+        var tab_object = $(this);
+
+        $(".list-group-item.list-group-item-action.custom-vertical-navigation.active").removeClass('active');
+        $(".list-group-item.list-group-item-action.compare-first-horizontal-navigation.active").removeClass('active');
+
+        var ref_this = $(".list-group-item.list-group-item-action.custom-vertical-navigation")
+        var ref_this2 = $(".list-group-item.list-group-item-action.compare-first-horizontal-navigation")
+
+        if (tab_object[0].innerHTML === 'Line'){
+            $(ref_this[0]).addClass('active');
+            $(ref_this2[0]).addClass('active');
+        } else if (tab_object[0].innerHTML === 'Candlestick'){
+            $(ref_this[1]).addClass('active');
+            $(ref_this2[1]).addClass('active');
+        }
+    })
+    {##################################################################################################################}
+    {#############################################                   ##################################################}
+    {#############################################     TAP-PANE      ##################################################}
+    {#############################################     intraday      ##################################################}
+    {##################################################################################################################}
+
+    $('.list-group-item.list-group-item-action.compare-first-horizontal-navigation-intraday').on('click', function() {
+        var tab_object = $(this);
+
+        $(".list-group-item.list-group-item-action.custom-horizontal-navigation-intraday.active").removeClass('active');
+        $(".list-group-item.list-group-item-action.custom-vertical-navigation-intraday.active").removeClass('active');
+
+
+        var ref_this = $(".list-group-item.list-group-item-action.custom-horizontal-navigation-intraday")
+        var ref_this2 = $(".list-group-item.list-group-item-action.custom-vertical-navigation-intraday")
+
+        if (tab_object[0].innerHTML === 'Line'){
+            $(ref_this[0]).addClass('active');
+            $(ref_this2[0]).addClass('active');
+        } else if (tab_object[0].innerHTML === 'Candlestick'){
+            $(ref_this[1]).addClass('active');
+            $(ref_this2[1]).addClass('active');
+        }
+    })
+
+    $('.list-group-item.list-group-item-action.custom-vertical-navigation-intraday').on('click', function() {
+        var tab_object = $(this);
+
+        $(".list-group-item.list-group-item-action.custom-horizontal-navigation-intraday.active").removeClass('active');
+        $(".list-group-item.list-group-item-action.compare-first-horizontal-navigation-intraday.active").removeClass('active');
+
+
+        var ref_this = $(".list-group-item.list-group-item-action.custom-horizontal-navigation-intraday")
+        var ref_this2 = $(".list-group-item.list-group-item-action.compare-first-horizontal-navigation-intraday")
+
+        if (tab_object[0].innerHTML === 'Line'){
+            $(ref_this[0]).addClass('active');
+            $(ref_this2[0]).addClass('active');
+        } else if (tab_object[0].innerHTML === 'Candlestick'){
+            $(ref_this[1]).addClass('active');
+            $(ref_this2[1]).addClass('active');
+        }
+    })
+
+
+    $('.list-group-item.custom-horizontal-navigation-intraday').on('click', function() {
+        var tab_object = $(this);
+
+        $(".list-group-item.list-group-item-action.custom-vertical-navigation-intraday.active").removeClass('active');
+        $(".list-group-item.list-group-item-action.compare-first-horizontal-navigation-intraday.active").removeClass('active');
+
+        var ref_this = $(".list-group-item.list-group-item-action.custom-vertical-navigation-intraday")
+        var ref_this2 = $(".list-group-item.list-group-item-action.compare-first-horizontal-navigation-intraday")
+
+        if (tab_object[0].innerHTML === 'Line'){
+            $(ref_this[0]).addClass('active');
+            $(ref_this2[0]).addClass('active');
+        } else if (tab_object[0].innerHTML === 'Candlestick'){
+            $(ref_this[1]).addClass('active');
+            $(ref_this2[1]).addClass('active');
+        }
+    })
+
+    {##################################################################################################################}
+    {#############################################                   ##################################################}
+    {#############################################      ANALYSIS     ##################################################}
+    {#############################################                   ##################################################}
+    {##################################################################################################################}
+
+    $('#stock_analysis').unbind('click').click(function() {
+        window.location.replace(window.location.href.split('?')[0] + 'analysis/')
+    })
+
+    {##################################################################################################################}
+    {###########################################                       ################################################}
+    {########################################### REMOVE FROM PORTFOLIO ################################################}
+    {###########################################                       ################################################}
+    {##################################################################################################################}
+
+    $('#remove_from_portfolio').unbind('click').click(function() {
+
+        $.ajax({
+            type: "POST",
+            url: "/portfolio/<str:portfolio>/<str:stock>/",
+            data: {
+                "csrfmiddlewaretoken": "{{ csrf_token }}",
+                remove_from_portfolio: '',
+                stock: window.location.href.split('/').slice(-2)[0],
+                portfolio: window.location.href.split('/').slice(-3)[0]
+            },
+            success: function(data) {
+
+                if (data.modal === 'error'){
+                    var modal = $('#modal_error_delete')
+
+                    outputtext = 'Stock ' + window.location.href.split('/').slice(-2)[0] + ' in this portfolio(' +
+                        window.location.href.split('/').slice(-3)[0] + ') still have bought shares.' +
+                        ' If you want to delete this stock from portfolio, firstly please sell your shares and then try again.'
+
+                    modal.find('.modal-body textarea').val(outputtext)
+                    modal.modal("show");
+                } else {
+                    window.location.replace(data.preview_redirect)
+                }
+            }
+        })
+    });
+
+    {##################################################################################################################}
+    {#############################################                   ##################################################}
+    {#############################################   BUY/SELL CHECK  ##################################################}
+    {#############################################                   ##################################################}
+    {##################################################################################################################}
+
+    $(document).ready(function() {
+        const id_quantity = $("#id_quantity");
+        const id_price = $("#id_price");
+
+        id_price.val(1);
+        id_price.attr({
+        "min" : 1
+        });
+
+        id_quantity.val(1);
+        id_quantity.attr({
+        "min" : 1
+        });
+        checkMultiplication(1.0, 1)
+
+
+        {# checked #}
+        $('#id_type').on('change', function() {
+            if (parseInt($('#id_type').val()) === 2)
+            {
+                var id_quantity = parseInt($('#id_quantity').val())
+                var id_ownedstocks = parseInt($('#id_ownedstocks').val())
+
+                if (id_quantity > id_ownedstocks) {
+                    $('#id_quantity').val(id_ownedstocks);
+                    $('#id_total_buy').val(parseInt($('#id_quantity').val()) * parseFloat($('#id_price').val()));
+                    return
+                }
+            } else if (parseInt($('#id_quantity').val()) === 0) {
+                {# If has no stock and comes from sell where quantity to sell sould be zero. #}
+                $('#id_quantity').val(1);
+                $('#id_total_buy').val(parseInt($('#id_quantity').val()) * parseFloat($('#id_price').val()));
+                return
+            }
+            id_quantity_val = parseInt($('#id_quantity').val());
+            id_price_val = parseFloat($('#id_price').val());
+            checkMultiplication(id_price_val, id_quantity_val);
+        });
+
+        {# checked #}
+        $('#id_price').on('change', function() {
+            id_price_val = parseFloat($(this).val());
+            id_quantity_val = parseInt($('#id_quantity').val());
+            checkMultiplication(id_price_val, id_quantity_val);
+        });
+
+        {# checked #}
+        $('#id_quantity').on('change', function() {
+            if (parseInt($('#id_type').val()) === 2)
+            {
+                var id_quantity = parseInt($('#id_quantity').val())
+                var id_ownedstocks = parseInt($('#id_ownedstocks').val())
+
+                if (id_quantity > id_ownedstocks) {
+                    $('#id_quantity').val(id_ownedstocks);
+                    $('#id_total_buy').val(parseInt($('#id_quantity').val()) * parseFloat($('#id_price').val()));
+                    return
+                }
+            }
+            id_quantity_val = parseInt($(this).val());
+            id_price_val = parseFloat($('#id_price').val());
+            checkMultiplication(id_price_val, id_quantity_val);
+        });
+    });
+
+    function checkMultiplication(id_price_val, id_quantity_val) {
+
+        id_price_val_int = parseFloat((id_price_val));
+        id_quantity_val_int = parseFloat((id_quantity_val));
+
+        mul_val =  id_price_val_int * id_quantity_val_int;
+        balance_val = parseFloat($('#id_balance').val());
+        type = parseInt($('#id_type').val())
+
+        if (isNaN(mul_val) || isNaN(balance_val)){
+            return
+        }
+
+        {# if buy #}
+        if (type==='1'){
+            $("#id_total_buy").val(mul_val);
+            return;
+        }
+
+
+        $("#id_total_buy").val(mul_val);
+
+        {#if (mul_val <= balance_val) {#}
+        {#    $("#id_total_buy").val(mul_val);#}
+        {# } else {#}
+        {#    window.alert('When you want to sell a stock then multiplication of price value and quantity value can not be more than your actual stock balance which is '+balance_val+'!');#}
+        {#    if (parseInt($('#id_ownedstocks').val()) === 0){#}
+        {#        $('#id_price').val(1);#}
+        {#        $('#id_quantity').val(0);#}
+        {#        $("#id_total_buy").val(0);#}
+        {##}
+        {#    } else {#}
+        {#        $('#id_price').val(1);#}
+        {#        $('#id_quantity').val(1);#}
+        {#        $("#id_total_buy").val(1);#}
+        {#    }#}
+        {# }#}
+    }
+
+    {##################################################################################################################}
+    {#############################################                   ##################################################}
+    {#############################################   BUY/SELL CHECK  ##################################################}
+    {#############################################                   ##################################################}
+    {##################################################################################################################}
+
+
+    $("#intrument_graph_view_options").change(function() {
+        var graph_view_val = $('#intrument_graph_view_options').val()
+
+        if (graph_view_val === 'interday'){
+            $('#intraday_card').addClass('d-none')
+            $('#interday_card').removeClass('d-none')
+
+            $('#intraday_card_prediction').addClass('d-none')
+            $('#interday_card_prediction').removeClass('d-none')
+
+            $('.intraday-graph.card').addClass('d-none')
+            $('.main-graph.card').removeClass('d-none')
+
+            $('.intraday-box').addClass('d-none')
+            $('.interday-box').removeClass('d-none')
+
+            line_chart.reflow();
+            candlestink_chart.reflow();
+            compare_line_chart.reflow();
+            compare_candlestink_chart.reflow();
+
+        } else if (graph_view_val === 'intraday'){
+            $('#interday_card').addClass('d-none')
+            $('#intraday_card').removeClass('d-none')
+
+            $('#interday_card_prediction').addClass('d-none')
+            $('#intraday_card_prediction').removeClass('d-none')
+
+            $('.main-graph.card').addClass('d-none')
+            $('.intraday-graph.card').removeClass('d-none')
+
+            $('.interday-box').addClass('d-none')
+            $('.intraday-box').removeClass('d-none')
+
+            intraday_line_chart.reflow();
+            intraday_candlestink_chart.reflow();
+            compare_intraday_line_chart.reflow();
+            compare_intraday_candlestink_chart.reflow();
+        }
+    });
+
+    {##################################################################################################################}
+    {#############################################                   ##################################################}
+    {#############################################     SEARCHBARS    ##################################################}
+    {#############################################                   ##################################################}
+    {##################################################################################################################}
+    $('#id_searchbar_compare_right_interday').on('input propertychange change', function() {
+
+
+        $("#id_searchbar_compare_right_interday").autocomplete({
+                                minLength: 0,
+                                delay: 0,
+                                source: function(request, response) {
+                    {# "i" == CASE INSENSITIVE, "" == CASE SENSITIVE #}
+                    var matcher = new RegExp("^" + $.ui.autocomplete.escapeRegex(request.term), "i");
+                    var data = $.grep( {{ instruList|safe }}, function(value) {
+                        return matcher.test( value.label || value.value || value );
+                    });
+                    response(data.slice(0, 5));
+                }
+        });
+    });
+
+    $('#id_searchbar_compare_right_intraday').on('input propertychange change', function() {
+
+
+        $("#id_searchbar_compare_right_intraday").autocomplete({
+                                minLength: 0,
+                                delay: 0,
+                                source: function(request, response) {
+                    {# "i" == CASE INSENSITIVE, "" == CASE SENSITIVE #}
+                    var matcher = new RegExp("^" + $.ui.autocomplete.escapeRegex(request.term), "i");
+                    var data = $.grep( {{ instruList|safe }}, function(value) {
+                        return matcher.test( value.label || value.value || value );
+                    });
+                    response(data.slice(0, 5));
+                }
+        });
+
+    });
+
+</script>
+
+
+{% endblock content %}

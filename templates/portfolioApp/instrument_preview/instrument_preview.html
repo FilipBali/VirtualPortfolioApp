@@ -1,0 +1,707 @@
+{% extends "core/base/base.html" %}
+{% load crispy_forms_filters %}
+{% block content %}
+
+{# scripts #}
+
+    <script src="https://code.highcharts.com/stock/highstock.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/data.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+
+    {#<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.js"></script>#}
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+
+
+    <link type='text/css' rel='stylesheet' href="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.css"/>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.js"></script>
+
+    {# datetimepicker #}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.js" integrity="sha512-s5u/JBtkPg+Ff2WEr49/cJsod95UgLHbC00N/GglqdQuLnYhALncz8ZHiW/LxDRGduijLKzeYb7Aal9h3codZA==" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.css" integrity="sha512-LT9fy1J8pE4Cy6ijbg96UkExgOjCqcxAC7xsnv+mLJxSvftGVmmc236jlPTZXPcBRQcVOWoK1IJhb1dAjtb4lQ==" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/i18n/jquery-ui-timepicker-addon-i18n.min.js" integrity="sha512-t2ZIJH81Sh+SWSb4BuA9en4j6fwja+sYOEXbqoepD9lJ+efUGD94gSWqdmgQchGmPez2ojECq4Fm6bKMUAzIiQ==" crossorigin="anonymous"></script>
+    {# end datetimepicker #}
+
+{# end scripts #}
+
+<style>
+
+    /*left right modal*/
+    .modal.right_modal{
+      position: fixed;
+      z-index: 99999;
+    }
+    .modal.right_modal .modal-dialog {
+      position: fixed;
+      margin: auto;
+      width: 45%;
+      height: 100%;
+      -webkit-transform: translate3d(0%, 0, 0);
+          -ms-transform: translate3d(0%, 0, 0);
+           -o-transform: translate3d(0%, 0, 0);
+              transform: translate3d(0%, 0, 0);
+    }
+
+
+    @media (min-width: 576px) {
+        .right_modal .modal-dialog {
+            max-width: 100%;
+        }
+    }
+
+    /*Right*/
+    .modal.right_modal.fade .modal-dialog {
+      right: -50%;
+      -webkit-transition: opacity 0.3s linear, right 0.3s ease-out;
+         -moz-transition: opacity 0.3s linear, right 0.3s ease-out;
+           -o-transition: opacity 0.3s linear, right 0.3s ease-out;
+              transition: opacity 0.3s linear, right 0.3s ease-out;
+    }
+
+    .modal.right_modal.fade.show .modal-dialog {
+      right: 0;
+      box-shadow: 0 0 19px rgba(0,0,0,.5);
+    }
+
+    /* ----- MODAL STYLE ----- */
+    .modal-content {
+      border-radius: 0;
+      border: none;
+    }
+
+
+
+    .modal-header.left_modal, .modal-header.right_modal {
+
+      padding: 10px 15px;
+      border-bottom-color: #EEEEEE;
+      background-color: #FAFAFA;
+    }
+
+    .modal_outer .modal-body {
+        /*height:90%;*/
+        overflow-y: auto;
+        overflow-x: hidden;
+        height: 91vh;
+    }
+
+    .fade-out {
+	opacity: 0;
+	animation-name: fadeOutOpacity;
+	animation-iteration-count: 1;
+	animation-timing-function: ease-out;
+	animation-duration: 3s;
+ }
+
+    @keyframes fadeOutOpacity {
+        100% {
+            opacity: 0;
+        }
+        0% {
+            opacity: 1;
+        }
+    }
+</style>
+
+
+<div class="container-fluid">
+    <div class="centered">
+        <div class="col-md-12">
+            <div class="card h-100 mb-2 d-none" id="fullscreen_panel">
+                <div class="card-body pb-0 pt-0 pl-0 pr-0 d-flex">
+                    <button class="btn  btn-outline-danger mr-3" id="tools_back">Close</button>
+                    <div class="list-group list-group-horizontal" id="myList" role="tablist">
+                        <a class="list-group-item list-group-item-action custom-horizontal-navigation active" data-toggle="list" href="#home">Line</a>
+                        <a class="list-group-item list-group-item-action custom-horizontal-navigation" data-toggle="list" href="#profile">Candlestick</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cards d-flex justify-content-between" id="moooove">
+                {# Details card #}
+                <div class="card w-25 mr-2 bg-light" id="details_card">
+                    <div class="card-header d-flex align-items-center justify-content-center">
+                        Details
+                    </div>
+
+                    <div class="card-body table-responsive">
+                        <table class="table mb-0">
+                            <tbody>
+                                <tr>
+                                {#<th scope="row">1</th>#}
+                                    <td>Name</td>
+                                    <td>{{ data.company_name }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Volume</td>
+                                    <td>{{ data.company_volume }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Primary Exchange</td>
+                                    <td>{{ data.company_primary_exchange }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                    {# Graph card #}
+                <div class="card w-100 h-100">
+                    <div class="tab-content h-100">
+                        <div class="tab-pane h-100 active" id="home" role="tabpanel">
+                            <div class="content-section mb-0 h-100 pb-0 pt-0 pl-0 pr-0">
+                                <div id="container_line" class="border h-100"></div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane h-100"  id="profile" role="tabpanel">
+                            <div class="content-section mb-0 h-100 pb-0 pt-0 pl-0 pr-0">
+                                <div id="container_candlestink" class="border h-100"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                {# Navigation card #}
+                <div class="card w-25 ml-2 bg-light" id="navigation_card">
+                    <div class="card-header d-flex align-items-center justify-content-center">
+                        Navigation
+                    </div>
+                    <div class="card-body d-flex flex-column" style="background: #fafafa">
+                        <div class="list-group pb-3" id="myList" role="tablist">
+                            <a class="list-group-item list-group-item-action custom-vertical-navigation active" data-toggle="list" href="#home">Line</a>
+                            <a class="list-group-item list-group-item-action custom-vertical-navigation" data-toggle="list" href="#profile" >Candlestick</a>
+                        </div>
+
+                        <span class="border-top pb-3"></span>
+
+                        {# <button class="btn btn-outline-info" type="button" id="updatebutton">Update news</button>#}
+                        <button class="btn  btn-outline-info" id="modal_view_right" data-toggle="modal" data-target="#news_modal">News</button>
+
+                        <span class="border-top pb-3"></span>
+                        <button class="btn  btn-outline-danger" id="Finalize">Fullscreen</button>
+                        <span class="border-top pb-3"></span>
+
+                        {#<button class="btn  btn-outline-dark" id="btn_historical_prices" onclick="getSelectedTabIndex()">Show historical prices</button>#}
+
+
+                        {#  TODO                       #}
+{#                            <button  class="btn btn-outline-dark w-100" id="btn_historical_prices" name="get_historical">Show historical prices</button>#}
+
+                        <span class="border-top pb-3"></span>
+                        <button class="btn  btn-outline-success" id="add_to_portfolio">Add to portfolio</button>
+                    </div>
+                </div>
+            </div>
+
+            {# Tool panel #}
+            <div class="cards d-flex justify-content-center pt-2" id="tool_panel">
+                <div class="card col-md-6 h-100 pl-0 pr-0 mr-1">
+                    <div class="card-header">Graph Tools</div>
+                    <div class="card-body">
+                        <div class="input-group input-group-sm mb-2 ml-3">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text" for="id_startdate">Start date</label>
+                                <input type="text" placeholder="Required field" required id="id_startdate">
+                            </div>
+                        </div>
+
+                        <div class="input-group input-group-sm mb-2 ml-3">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text" for="id_enddate">End date</label>
+                                <input type="text" placeholder="Required field" required id="id_enddate">
+                            </div>
+                        </div>
+
+                        <button id="btn_change_dates" type="button" class="btn btn-sm btn-primary ml-3">Select</button>
+                    </div>
+                </div>
+
+                <div class="card col-md-6 h-100 pl-0 pr-0 ml-1">
+                    <div class="card-header"></div>
+                </div>
+            </div>
+
+            {# Help modal slides right #}
+            <div class="modal modal_outer right_modal fade" id="news_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2" >
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content h-100" style="background-color: navajowhite;">
+                        <!-- <input type="hidden" name="email_e" value="admin@filmscafe.in"> -->
+                        <div class="modal-header">
+                            <h2 class="modal-title">News:</h2>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body get_quote_view_modal_body">
+                            <div id="accordion">
+                                {# <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">#}
+                                {#                      <div class="card-body">#}
+                                {#                        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.#}
+                                {#                      </div>#}
+                                {#                    </div>#}
+                                {#                </div>#}
+                                {% for news in data.news %}
+                                <div class="pb-2">
+                                    <div class="card h-100" style="border-bottom-left-radius: 15px;border-bottom-right-radius: 15px;">
+                                        <div class="card-header border-dark" style="background-color: papayawhip;" id="heading{{ news.id }}">
+                                            <div class="mb-0 d-flex align-items-center ">
+                                                <label  class="btn btn-link flex-grow-1 text-left text-dark mb-0 collapsed" data-toggle="collapse" data-target="#collapse{{ news.id }}" aria-expanded="false" aria-controls="collapse{{ news.id }}">
+                                                    <h6>{{ news.article_headline }}</h6>
+                                                </label >
+                                                <p class="text-dark">{{ news.datetime }}</p>
+                                            </div>
+                                        </div>
+
+                                        <div id="collapse{{ news.id }}" class="collapse" aria-labelledby="heading{{ news.id }}" data-parent="#accordion">
+                                            <div class="card-body bg-light border-dark">
+                                                {{ news.article_text }}
+                                            </div>
+                                            <div class="card-footer border-dark" style="background-color: silver;border-bottom-left-radius: 15px;border-bottom-right-radius: 15px;">Source:
+                                                <a href="http://{{news.url}}">{{news.source}}</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div><!-- modal-content -->
+                </div><!-- modal-dialog -->
+            </div><!-- modal -->
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+
+    $('#btn_historical_prices').unbind('click').click(function() {
+
+        var stock = window.location.href.split('/').slice(-3)[0]
+        var startdate = $('#id_startdate').val()
+        var enddate = $('#id_enddate').val()
+
+        if (startdate.slice(-1) === ' '){
+            startdate = startdate.slice(0, -1);
+        }
+
+        if (enddate.slice(-1) === ' '){
+            enddate = enddate.slice(0, -1);
+        }
+
+
+        if (startdate === "" && enddate === ""){
+            alert("Error! Set \"Start date\" and \"End date\".");
+            return false;
+
+        } else if (startdate === ""){
+            alert("Error! Set \"Start date\".");
+            return false;
+
+        } else if (enddate === ""){
+            alert("Error! Set \"End date\".");
+            return false;
+        }
+
+        start_date = new Date(startdate);
+        end_date = new Date(enddate);
+        today_date = new Date();
+
+        if (start_date > end_date){
+            alert("Error! \"Start date\" can not be bigger than \"End date\".");
+            return false;
+        }
+
+        if ((start_date > today_date) || (end_date > today_date)){
+            alert("Error! Dates can not be in future.");
+            return false;
+        }
+
+
+       location.href=(('/auth/historical_data/?stock='+stock+'&startdate='+startdate+'&enddate='+enddate))
+    })
+
+
+    $('#btn_change_dates').unbind('click').click(function() {
+
+        $(this).prepend(`<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>`);
+
+        var stock = window.location.href.split('/').slice(-3)[0]
+        var startdate = $('#id_startdate').val()
+        var enddate = $('#id_enddate').val()
+
+        if (startdate === "" && enddate === ""){
+            alert("Error! Set \"Start date\" and \"End date\".");
+            $(".spinner-border").remove();
+            return false;
+
+        } else if (startdate === ""){
+            alert("Error! Set \"Start date\".");
+            $(".spinner-border").remove();
+            return false;
+
+        } else if (enddate === ""){
+            alert("Error! Set \"End date\".");
+            $(".spinner-border").remove();
+            return false;
+        }
+
+        start_date = new Date(startdate);
+        end_date = new Date(enddate);
+        today_date = new Date();
+
+        if (start_date > end_date){
+            alert("Error! \"Start date\" can not be bigger than \"End date\".");
+            $(".spinner-border").remove();
+            return false;
+        }
+
+        if ((start_date > today_date) || (end_date > today_date)){
+            alert("Error! Dates can not be in future.");
+            $(".spinner-border").remove();
+            return false;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/portfolio/<str:portfolio>/<str:stock>/preview/",
+            data: {
+                "csrfmiddlewaretoken": "{{ csrf_token }}",
+                stock: stock,
+                startdate: startdate,
+                enddate: enddate,
+            },
+            success: function(data) {
+
+                line_chart.series[0].update({
+                  categories: data.stock_id,
+                  data: data.stock_closed
+                }, false);
+                line_chart.redraw();
+
+
+                candlestink_chart.series[0].update({
+                    data: data.stock_candle,
+                }, false);
+                candlestink_chart.redraw();
+
+
+                $(".spinner-border").remove();
+            }
+        })
+
+
+    })
+
+
+    function function2()
+    {
+        line_chart.reflow();
+        candlestink_chart.reflow();
+    }
+
+    $("#moooove").animate({"height":"500px"}, "slow", function() {
+        line_chart.reflow();
+        candlestink_chart.reflow();
+    });
+
+    function f3(){
+        var left = $('#details_card').left;
+        $("#details_card").css({left:left}).animate({"left":"-400px"}, "slow", function() {
+            // Animation complete.
+            $("#details_card").hide();
+        });
+
+        var right = $('#navigation_card').right;
+        $("#navigation_card").css({right:right}).animate({"right":"-400px"}, "slow", function() {
+            // Animation complete.
+            $("#navigation_card").hide();
+       });
+    }
+
+    function f4() {
+        $("#moooove").animate({"height":"750px"}, "slow", function() {
+            // Animation complete.
+            function2()
+        });
+    }
+
+    function move_and_hide(){
+        $.when(f3()).then(f4())
+    }
+
+    $(function(){
+        $("#Finalize").click(function () {
+            move_and_hide()
+            $("#fullscreen_panel").removeClass("d-none");
+        });
+    });
+
+    $('a[data-toggle="list"]').on('shown.bs.tab', function (e) {
+        line_chart.reflow();
+        candlestink_chart.reflow();
+    });
+
+    function move_and_show(){
+        var right = $('#navigation_card').right;
+        $("#navigation_card").css({right:right}).animate({"right":"+0px"}, "slow", function() {
+            // Animation complete.
+            $("#navigation_card").show();
+        });
+
+        var right = $('#details_card').right;
+        $("#details_card").css({right:right}).animate({"left":"0px"}, "slow", function() {
+            // Animation complete.
+            $("#details_card").show();
+        });
+
+
+        $("#moooove").animate({"height":"500px"}, "slow", function() {
+            line_chart.reflow();
+            candlestink_chart.reflow();
+        });
+    }
+
+    $(function(){
+        $("#tools_back").click(function () {
+            {#var left = $('#details_card').left;#}
+            {#$("#details_card").css({left:left}).animate({"left":"-300px"}, "slow");#}
+
+            $.when(move_and_show()).then(function2());
+            $("#fullscreen_panel").addClass("d-none");
+            {#$("#details_card").hide();#}
+        });
+    });
+
+
+
+    // create the chart
+    const candlestink_chart = Highcharts.stockChart('container_candlestink', {
+
+
+        {#rangeSelector: {#}
+        {#    selected: 1#}
+        {# },#}
+        width: null,
+        height: null,
+        title: {
+            text: '{{ data.symbol }} ({{ data.company_name }})'
+        },
+
+        series: [{
+            type: 'candlestick',
+            name: '{{ data.symbol }} Stock Price',
+            data: {{ data.stock_candle|safe }},
+            dataGrouping: {
+                units: [
+                    [
+                        'week', // unit name
+                        [1] // allowed multiples
+                    ],
+                    [
+                        'month',
+                        [1, 2, 3, 4, 6]
+                    ]
+                ]
+            }
+        }]
+
+    });
+
+    const line_chart = Highcharts.chart('container_line', {
+        chart: {
+            type: 'line',
+            // Edit chart spacing
+
+            // Explicitly tell the width and height of a chart
+                width: null,
+                height: null,
+        },
+
+        title: {
+            text: '{{ data.symbol }} ({{ data.company_name }})'
+        },
+        subtitle: {
+            text: ''
+        },
+        xAxis: {
+            categories: {{ data.stock_id|safe  }},
+            crosshair: true
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Price'
+            }
+        },
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                         '<td style="padding:0"><b>{point.y:.1f} {{data.currency}}</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+        plotOptions: {
+            column: {
+                pointPadding: 0.2,
+                borderWidth: 0
+            }
+        },
+        series: [{
+            name: 'Date',
+            data: {{ data.stock_closed }}
+
+        }],
+
+        responsive: {
+            rules: [{
+                condition: {
+                    maxWidth: 1500
+                },
+            }]
+        }
+    });
+
+    $(function() {
+        $( "#id_date" ).datetimepicker({
+            dateFormat: "yy-mm-dd",
+            timeFormat: 'hh:mm:ss',
+            showSecond: false,
+            showMillisec: false,
+            showMicrosec: false,
+            showTimezone: false
+        });
+    });
+
+    {# inspired code #}
+    {# Source: https://stackoverflow.com/questions/2155453/jquery-toggle-text #}
+    {# Author: JxAxMxIxN #}
+    {# Author profile: https://stackoverflow.com/users/1840601/jxaxmxixn #}
+    {# answered Sep 16 '16 at 7:28 #}
+    {# edited Feb 9 '17 at 22:39   #}
+    $.fn.extend({
+        toggleText: function(a, b){
+            return this.text(this.text() === b ? a : b);
+        }
+    });
+    {# inspired code END #}
+
+    function update_messages(messages){
+        {#$("#div_messages").html("");#}
+        $("#div_messages").empty();
+        $.each(messages, function (i, m) {
+            $("#div_messages").append("<div class='alert alert-"+m.level+"''>"+m.message+"</div>");
+        })
+        setTimeout(function(){
+           $("#div_messages").addClass('fade-out');
+         }, 5000);
+
+        setTimeout(function(){
+            $("#div_messages").removeClass('fade-out');
+            $("#div_messages").removeClass('d-none');
+            $("#div_messages").empty();
+         }, 8000);
+    }
+
+
+    $(document).ready(function() {
+        $('#btn_historical_prices').val('');
+        $('#id_type').change(function () {})
+
+
+        $(function() {
+            $( "#id_startdate" ).datetimepicker({
+            dateFormat: "yy-mm-dd",
+            timeFormat: '',
+                showSecond: false,
+                showMillisec: false,
+                showMicrosec: false,
+                showTimezone: false
+            });
+        });
+
+
+        $(function() {
+            $( "#id_enddate" ).datetimepicker({
+            dateFormat: "yy-mm-dd",
+            timeFormat: '',
+                showSecond: false,
+                showMillisec: false,
+                showMicrosec: false,
+                showTimezone: false
+            });
+        });
+
+        var urlParams = new URLSearchParams(window.location.search)
+        if (urlParams.get('startdate') !== null &&
+            urlParams.get('enddate') !== null)
+        {
+            $('#id_startdate').val(urlParams.get('startdate'))
+            $('#id_enddate').val(urlParams.get('enddate'))
+        }
+
+    })
+
+    function getSelectedTabIndex() {
+        var $tabs = $('#myList').tabs();
+        var active = $("#myList").tabs()
+
+    }
+
+
+    $('.list-group-item.list-group-item-action.custom-vertical-navigation').on('click', function() {
+        var tab_object = $(this);
+        $(".list-group-item.list-group-item-action.custom-horizontal-navigation.active").removeClass('active');
+        var ref_this = $(".list-group-item.list-group-item-action.custom-horizontal-navigation")
+
+        if (tab_object[0].innerHTML === 'Line'){
+            $(ref_this[0]).addClass('active');
+        } else if (tab_object[0].innerHTML === 'Candlestick'){
+            $(ref_this[1]).addClass('active');
+        }
+    })
+
+
+    $('.list-group-item.custom-horizontal-navigation').on('click', function() {
+        var tab_object = $(this);
+        $(".list-group-item.list-group-item-action.custom-vertical-navigation.active").removeClass('active');
+        var ref_this = $(".list-group-item.list-group-item-action.custom-vertical-navigation")
+
+        if (tab_object[0].innerHTML === 'Line'){
+            $(ref_this[0]).addClass('active');
+        } else if (tab_object[0].innerHTML === 'Candlestick'){
+            $(ref_this[1]).addClass('active');
+        }
+    })
+
+    $('#add_to_portfolio').unbind('click').click(function() {
+
+        $.ajax({
+            type: "POST",
+            url: "/portfolio/<str:portfolio>/<str:stock>/preview/",
+            data: {
+                "csrfmiddlewaretoken": "{{ csrf_token }}",
+                add_to_portfolio: '',
+                stock: window.location.href.split('/').slice(-3)[0],
+                portfolio: window.location.href.split('/').slice(-4)[0]
+
+            },
+            success: function(data) {
+                window.location.replace(data.new_stock_in_portfolio_redirect)
+
+            }
+        })
+    });
+
+
+
+</script>
+
+
+{% endblock content %}
